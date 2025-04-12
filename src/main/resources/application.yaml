@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: BeautyBox
+  datasource:
+    url: ${database.url}
+    username: ${database.username}
+    password: ${database.password}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        search:
+          backend:
+            hosts: ${elastic.hosts}
+            username: ${elastic.username}
+            password: ${elastic.password}
+            analysis:
+              configurer: org.beautybox.config.ElasticsearchAnalysisConfig
+          schema_management:
+            strategy: create-or-update
