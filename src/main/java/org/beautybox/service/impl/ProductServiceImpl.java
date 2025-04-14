@@ -3,7 +3,6 @@ package org.beautybox.service.impl;
 import com.cloudinary.Cloudinary;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.beautybox.entity.*;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.exception.ErrorDetail;
@@ -12,7 +11,6 @@ import org.beautybox.repository.*;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
 import org.beautybox.response.PageResponse;
-import org.beautybox.response.ProductDetailResponse;
 import org.beautybox.response.ProductResponse;
 import org.beautybox.service.ProductService;
 import org.hibernate.search.engine.search.query.SearchResult;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -40,8 +37,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @SneakyThrows
-    public void add(CreateProductRequest productRequest){
+    public void add(CreateProductRequest productRequest) throws BeautyBoxException {
         Brand brand = brandRepository.findById(productRequest.getBrandId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_BRAND_NOT_EXISTED)
         );
@@ -52,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
         for(var item : productRequest.getImages()){
             imageUrls.add(this.getImageUrl(item));
         }
-        Product product = productMapper.fromCreateProductRequest(productRequest);
+        Product product = productMapper.toProduct(productRequest);
         product.setBrand(brand);
         product.setCategory(category);
         productRepository.save(product);
@@ -65,8 +61,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @SneakyThrows
-    private String getImageUrl(MultipartFile file) {
+    private String getImageUrl(MultipartFile file) throws BeautyBoxException {
         try {
             var response = cloudinary.uploader().upload(file.getBytes(), Map.of());
             return response.get("url").toString();
@@ -75,9 +70,8 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @SneakyThrows
     @Override
-    public void addProductDetail(CreateProductDetailRequest productDetailRequest) {
+    public void addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException {
         Product product = productRepository.findById(productDetailRequest.getProductId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
@@ -142,7 +136,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDetailResponse> getProductDetail(String productId) {
-        return productDetailRepository.findByProductId(productId).stream().map(productMapper::toProductDetailResponse).toList();
+    public ProductResponse getProductDetail(String productId) throws BeautyBoxException {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
+        );
+        return productMapper.toProductResponse(product);
     }
 }

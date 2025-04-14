@@ -19,7 +19,9 @@ public class ProductResponse {
     String brandId;
     String brandName;
     String brandImgUrl;
+    double averageRating;
+    long totalNumRating;
+    long totalSold;
     List<String> images;
     List<ProductDetailResponse> details;
-    double averageRating;
 }

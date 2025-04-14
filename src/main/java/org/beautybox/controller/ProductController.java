@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
 import org.beautybox.response.ApiResponse;
@@ -25,7 +27,7 @@ public class ProductController {
             @SecurityRequirement(name = "bearerAuth")
     })
     @PostMapping("/admin-api/product")
-    public ApiResponse createProduct(@ModelAttribute @Valid CreateProductRequest request){
+    public ApiResponse createProduct(@ModelAttribute @Valid CreateProductRequest request) throws BeautyBoxException {
         productService.add(request);
         return ApiResponse.success("Success");
     }
@@ -34,7 +36,7 @@ public class ProductController {
             @SecurityRequirement(name = "bearerAuth")
     })
     @PostMapping("/admin-api/product-detail")
-    public ApiResponse createProductDetail(@ModelAttribute @Valid CreateProductDetailRequest request){
+    public ApiResponse createProductDetail(@ModelAttribute @Valid CreateProductDetailRequest request) throws BeautyBoxException {
         productService.addProductDetail(request);
         return ApiResponse.success("Created product detail success");
     }
@@ -75,11 +77,9 @@ public class ProductController {
 
     @GetMapping("/public-api/product/{productId}")
     @Operation(summary = "Lấy sản phẩm con bằng id sản phẩm cha")
-    public ApiResponse getProductDetail(@PathVariable String productId){
+    public ApiResponse getProductDetail(@PathVariable String productId) throws BeautyBoxException {
         return ApiResponse.success("Success", productService.getProductDetail(productId));
     }
-
-
 
     private void validPage(int pageIndex, int pageSize){
         if(pageIndex < 1 || pageSize < 1){

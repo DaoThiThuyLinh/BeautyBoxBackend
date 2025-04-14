@@ -105,7 +105,6 @@ public class GlobalException {
     @ExceptionHandler(BeautyBoxException.class)
     public ResponseEntity<ApiResponse> bookingCareAppException(BeautyBoxException e){
         ErrorDetail errorDetail= e.getErrorDetail();
-        log.error(errorDetail.getMessage());
         return ResponseEntity.badRequest().body(ApiResponse.error(errorDetail.getCode(), errorDetail.getMessage()));
     }
 }
