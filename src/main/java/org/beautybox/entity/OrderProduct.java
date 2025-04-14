@@ -21,9 +21,21 @@ public class OrderProduct extends BaseEntity {
     int quantity;
     @Column(unique = true, nullable = false, updatable = false)
     long totalAmount;
-    @Column(unique = true, nullable = false, updatable = false)
+    @Column(unique = true, updatable = false)
     String notes;
+    /*
+    1. Thanh toán tiền mặt
+    2. Thanh toán qua VNPay
+     */
     int paymentType;
+    /*
+    1. Chờ xác nhận
+    2. Đang chuẩn bị giao hàng
+    3. Đang giao hàng tới
+    4. Đã nhận
+    5. Đã huỷ đơn
+    6. Không nhận hàng
+     */
     int status;
     @Column(unique = true)
     String orderCode;
@@ -40,8 +52,8 @@ public class OrderProduct extends BaseEntity {
     @Column(updatable = false, nullable = false, length = 12)
     String recipientPhoneNumber;
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    Product product;
+    @JoinColumn
+    ProductDetail productDetail;
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;

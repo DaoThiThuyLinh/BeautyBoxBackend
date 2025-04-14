@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum ErrorDetail {
     ERR_USER_EMAIL_EXISTED(400, "Email already exists")
     , ERR_USER_UN_AUTHENTICATE(401, "Incorrect username or password")
+    , ERR_USER_NOT_EXISTED(404, "Người dùng không tồn tại")
     , ERR_PASSWORD_CONFIRM_INCORRECT(400, "Password confirmation incorrect")
     , ERR_CATEGORY_EXISTED(400, "Category already exists")
     , ERR_BRAND_EXISTED(400, "Brand already exists")
