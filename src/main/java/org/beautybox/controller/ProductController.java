@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateProductDetailRequest;
@@ -39,6 +38,12 @@ public class ProductController {
     public ApiResponse createProductDetail(@ModelAttribute @Valid CreateProductDetailRequest request) throws BeautyBoxException {
         productService.addProductDetail(request);
         return ApiResponse.success("Created product detail success");
+    }
+
+    @DeleteMapping("/admin-api/product-detail/{productDetailId}")
+    public ApiResponse deleteProductDetail(@PathVariable String productDetailId) throws BeautyBoxException {
+        productService.deleteProductDetail(productDetailId);
+        return ApiResponse.success("Xoá chi tiết sản phẩm thành công");
     }
 
     @Operation(summary = "Lọc sản phẩm", parameters = {

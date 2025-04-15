@@ -83,12 +83,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void deleteProductDetail(String id) throws BeautyBoxException{
+        ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
+        );
+        productDetail.setIsEnabled(false);
+        productDetailRepository.save(productDetail);
+    }
+
+    @Override
     public PageResponse<?> filterProduct(String value, String category, String brand, long minPrice, long maxPrice, int pageIndex, int pageSize, String orderBy, String direction) {
         SearchSession searchSession = Search.session(entityManager);
         SearchResult<Product> searchResult = searchSession.search(Product.class)
                 .where(t -> {
                             var bool = t.bool();
-
                             bool.must(
                                     t.bool()
                                             .should(t.not(t.exists().field("productDetails")))

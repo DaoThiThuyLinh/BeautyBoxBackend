@@ -27,6 +27,7 @@ public abstract class ProductMapper {
     OrderRepository orderRepository;
 
     public abstract Product toProduct(CreateProductRequest request);
+    @Mapping(target = "isEnabled", constant = "true")
     public abstract ProductDetail toProductDetail(CreateProductDetailRequest request);
     @Mappings({
             @Mapping(target = "categoryId", source = "category.id"),
@@ -58,7 +59,10 @@ public abstract class ProductMapper {
     }
 
     protected List<ProductDetailResponse> productDetailResponses(String productId){
-        return productDetailRepository.findByProductId(productId).stream().map(this::toProductDetailResponse).toList();
+        return productDetailRepository.findByProductId(productId).stream()
+                .filter(ProductDetail::getIsEnabled)
+                .map(this::toProductDetailResponse)
+                .toList();
     }
 
     protected long getNewPrice(long price, int discount){

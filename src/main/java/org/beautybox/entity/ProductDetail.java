@@ -34,8 +34,13 @@ public class ProductDetail extends BaseEntity {
     String description;
     @Column(unique = true)
     String imageUrl;
-    Boolean status;
+    /*
+    True: Tồn tại
+    False: Đã xoá
+     */
+    @GenericField(sortable = Sortable.YES)
+    Boolean isEnabled;
     @ManyToOne
-            @JoinColumn(name = "product_id")
+            @JoinColumn
     Product product;
 }
