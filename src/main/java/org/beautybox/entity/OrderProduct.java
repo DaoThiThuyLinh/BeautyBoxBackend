@@ -19,7 +19,7 @@ public class OrderProduct extends BaseEntity {
     @Min(value = 1, message = "Quantity must be greater than 1")
     @Column(nullable = false, updatable = false)
     int quantity;
-    @Column(unique = true, nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     long totalAmount;
     @Column(unique = true, updatable = false)
     String notes;

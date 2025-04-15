@@ -14,6 +14,7 @@ public enum ErrorDetail {
     , ERR_CATEGORY_NOT_EXISTED(400, "Category does not exists")
     , ERR_WHILE_UPLOAD(400, "Error uploading image")
     , ERR_PRODUCT_NOT_EXISTED(400, "Sản phẩm không tồn tại")
+    , ERR_CART_EXISTED(400, "Giỏ hàng đã tồn tại")
     ;
 
     private final int code;

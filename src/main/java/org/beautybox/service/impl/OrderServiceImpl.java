@@ -27,12 +27,9 @@ public class OrderServiceImpl implements OrderService {
 
     @SneakyThrows
     @Override
-    public void add(OrderRequest orderRequest) {
+    public void add(User user, OrderRequest orderRequest) {
         ProductDetail productDetail = productDetailRepository.findById(orderRequest.getProductDetailId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
-        );
-        User user = userRepository.findById(orderRequest.getUserId()).orElseThrow(
-                () -> new BeautyBoxException(ErrorDetail.ERR_USER_NOT_EXISTED)
         );
         long price = productDetail.getPrice();
         int discount = productDetail.getDiscount();

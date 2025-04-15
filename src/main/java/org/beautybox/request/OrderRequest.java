@@ -23,8 +23,6 @@ public class OrderRequest {
     Integer paymentType;
     @NotBlank
     String productDetailId;
-    @NotBlank(message = "Không được bỏ trống người đặt hàng")
-    String userId;
     @NotBlank(message = "Không được bỏ trống xã")
     String commune;
     @NotBlank(message = "Không được bỏ trống huyện")
