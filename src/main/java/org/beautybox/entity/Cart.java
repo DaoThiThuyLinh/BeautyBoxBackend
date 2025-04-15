@@ -18,9 +18,9 @@ public class Cart extends BaseEntity {
     @Column(columnDefinition = "int check (quantity > 0)")
     int quantity;
     @ManyToOne
-            @JoinColumn(name = "product_id")
-    Product product;
+            @JoinColumn
+    ProductDetail productDetail;
     @ManyToOne
-            @JoinColumn(name = "user_id")
+            @JoinColumn
     User user;
 }
