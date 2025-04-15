@@ -7,6 +7,7 @@ import org.beautybox.entity.User;
 import org.beautybox.request.OrderRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.OrderService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,5 +22,10 @@ public class OrderController {
     public ApiResponse order(@RequestBody @Valid OrderRequest orderRequest, @CurrentUser User user) {
         orderService.add(user, orderRequest);
         return ApiResponse.success("Đặt hàng thành công");
+    }
+
+    @GetMapping("/order")
+    public ApiResponse getOrder(@CurrentUser User user) {
+        return null;
     }
 }

@@ -19,8 +19,6 @@ public class OrderProduct extends BaseEntity {
     @Min(value = 1, message = "Quantity must be greater than 1")
     @Column(nullable = false, updatable = false)
     int quantity;
-    @Column(nullable = false, updatable = false)
-    long totalAmount;
     @Column(unique = true, updatable = false)
     String notes;
     /*
@@ -51,10 +49,24 @@ public class OrderProduct extends BaseEntity {
     String recipientName;
     @Column(updatable = false, nullable = false, length = 12)
     String recipientPhoneNumber;
+    @Column(length = 36, nullable = false, updatable = false)
+    String productId;
+    @Column(columnDefinition = "varchar(100)", nullable = false, updatable = false)
+    String productName;
+    @Column(columnDefinition = "text", updatable = false)
+    String description;
+    @Column(length = 36, nullable = false, updatable = false)
+    String productDetailId;
+    @Column(columnDefinition = "varchar(100)", nullable = false, updatable = false)
+    String productDetailName;
+    @Column(nullable = false, updatable = false)
+    long price;
+    @Column(nullable = false, updatable = false)
+    int discount;
+    @Column(nullable = false, updatable = false)
+    String imageUrl;
+
     @ManyToOne
     @JoinColumn
-    ProductDetail productDetail;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
     User user;
 }

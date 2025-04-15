@@ -2,7 +2,6 @@ package org.beautybox.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.beautybox.BeautyBoxApplication;
 import org.beautybox.entity.OrderProduct;
 import org.beautybox.entity.ProductDetail;
 import org.beautybox.entity.User;
@@ -22,7 +21,6 @@ public class OrderServiceImpl implements OrderService {
 
     final OrderMapper orderMapper;
     final OrderRepository orderRepository;
-    final UserRepository userRepository;
     final ProductDetailRepository productDetailRepository;
 
     @SneakyThrows
@@ -31,14 +29,18 @@ public class OrderServiceImpl implements OrderService {
         ProductDetail productDetail = productDetailRepository.findById(orderRequest.getProductDetailId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
-        long price = productDetail.getPrice();
-        int discount = productDetail.getDiscount();
-        long totalAmount = (price - price * discount / 100) * orderRequest.getQuantity();
-        OrderProduct orderProduct = orderMapper.toOrder(orderRequest);
-        orderProduct.setTotalAmount(totalAmount);
-        orderProduct.setUser(user);
-        orderProduct.setProductDetail(productDetail);
 
+        OrderProduct orderProduct = orderMapper.toOrder(orderRequest);
+
+        orderProduct.setUser(user);
+        orderProduct.setProductId(productDetail.getProduct().getId());
+        orderProduct.setProductName(productDetail.getProduct().getName());
+        orderProduct.setDescription(productDetail.getProduct().getDescription());
+        orderProduct.setProductDetailId(productDetail.getId());
+        orderProduct.setProductDetailName(productDetail.getName());
+        orderProduct.setPrice(productDetail.getPrice());
+        orderProduct.setDiscount(productDetail.getDiscount());
+        orderProduct.setImageUrl(productDetail.getImageUrl());
         orderRepository.save(orderProduct);
     }
 }
