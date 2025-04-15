@@ -46,6 +46,12 @@ public class ProductController {
         return ApiResponse.success("Xoá chi tiết sản phẩm thành công");
     }
 
+    @DeleteMapping("/admin-api/product/{productId}")
+    public ApiResponse deleteProduct(@PathVariable String productId) throws BeautyBoxException {
+        productService.deleteProduct(productId);
+        return ApiResponse.success("Xoá thông tin sản phẩm thành công");
+    }
+
     @Operation(summary = "Lọc sản phẩm", parameters = {
             @Parameter(name = "orderBy", description = "<h4>Truyền vào giá trị từ 1->5</h4>" +
                     "{1}. Sắp xếp theo thời gian tạo </br>" +

@@ -26,9 +26,15 @@ public abstract class ProductMapper {
     @Autowired
     OrderRepository orderRepository;
 
+
+    @Mapping(target = "isEnabled", constant = "true")
     public abstract Product toProduct(CreateProductRequest request);
+
+
     @Mapping(target = "isEnabled", constant = "true")
     public abstract ProductDetail toProductDetail(CreateProductDetailRequest request);
+
+
     @Mappings({
             @Mapping(target = "categoryId", source = "category.id"),
             @Mapping(target = "categoryName", source = "category.name"),
@@ -41,6 +47,7 @@ public abstract class ProductMapper {
         }
     )
     public abstract ProductResponse toProductResponse(Product product);
+
 
     @Mappings({
             @Mapping(target = "image", source = "imageUrl"),

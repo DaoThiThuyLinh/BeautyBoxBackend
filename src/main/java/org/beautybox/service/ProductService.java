@@ -12,6 +12,7 @@ public interface ProductService {
     void add(CreateProductRequest productRequest) throws BeautyBoxException;
     void addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException;
     void deleteProductDetail(String id) throws BeautyBoxException;
+    void deleteProduct(String productId) throws BeautyBoxException;
     PageResponse<?> filterProduct(String value, String category, String brand, long minPrice, long maxPrice, int pageIndex, int pageSize, String orderBy, String direction);
     List<String> suggestNameSearch(String value);
     ProductResponse getProductDetail(String productId) throws BeautyBoxException;

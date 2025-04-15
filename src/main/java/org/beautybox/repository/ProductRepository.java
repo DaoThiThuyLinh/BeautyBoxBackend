@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Query("from Product p " +
@@ -32,4 +34,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             "from Product p " +
             "where p.brand.id = :brand")
     int countByBrand(String brand);
+
+    @Query("FROM Product p " +
+            "WHERE p.id = :id " +
+            "AND p.isEnabled = true ")
+    Optional<Product> findById(String id);
 }

@@ -92,6 +92,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void deleteProduct(String productId) throws BeautyBoxException {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
+        );
+        product.setIsEnabled(false);
+        productRepository.save(product);
+    }
+
+    @Override
     public PageResponse<?> filterProduct(String value, String category, String brand, long minPrice, long maxPrice, int pageIndex, int pageSize, String orderBy, String direction) {
         SearchSession searchSession = Search.session(entityManager);
         SearchResult<Product> searchResult = searchSession.search(Product.class)
@@ -102,6 +111,7 @@ public class ProductServiceImpl implements ProductService {
                                             .should(t.not(t.exists().field("productDetails")))
                                             .should(t.range().field("productDetails.price").between(minPrice, maxPrice))
                             );
+                            bool.must(t.match().field("isEnabled").matching(true));
                             if(value != null && !value.isBlank()){
                                 bool.must(t.match().fields("name", "description", "productDetails.name", "productDetails.description").matching(value).fuzzy());
                             }
@@ -137,7 +147,12 @@ public class ProductServiceImpl implements ProductService {
                 .select(
                         t-> t.highlight("name")
                 )
-                .where(t -> t.phrase().field("name").matching(value).slop(2))
+                .where(t -> {
+                    var bool = t.bool();
+                    bool.must(t.phrase().field("name").matching(value).slop(2));
+                    bool.must(t.match().field("isEnabled").matching(true));
+                    return bool;
+                })
                 .highlighter(t-> t.plain().tag("<b>", "</b>"))
                 .fetchAll();
         return searchResult.hits().stream().map(t-> t.toString().substring(1, t.toString().length() - 1)).toList();

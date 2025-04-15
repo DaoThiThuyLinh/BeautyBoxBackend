@@ -27,6 +27,8 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "text")
             @FullTextField(analyzer = "vietnameseAnalyzer")
     String description;
+    @GenericField
+    Boolean isEnabled;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
             @JoinColumn(name = "category_id")
             @IndexedEmbedded(includePaths = {"id"})
