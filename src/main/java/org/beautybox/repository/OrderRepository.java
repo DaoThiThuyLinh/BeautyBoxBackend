@@ -11,4 +11,9 @@ public interface OrderRepository extends JpaRepository<OrderProduct, String> {
             "FROM OrderProduct op " +
             "WHERE op.productDetail.product.id = :productId ")
     long countByProductId(String productId);
+
+    @Query(value = "SELECT count(*)" +
+            "FROM OrderProduct op " +
+            "WHERE op.productDetail.id = :productDetailId")
+    long countByProductDetailId(String productDetailId);
 }

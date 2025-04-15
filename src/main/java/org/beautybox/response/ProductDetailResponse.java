@@ -17,5 +17,6 @@ public class ProductDetailResponse {
     String status;
     int discount;
     int stock;
+    long totalSold;
     String image;
 }

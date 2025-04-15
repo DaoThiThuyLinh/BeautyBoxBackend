@@ -5,7 +5,6 @@ import org.beautybox.entity.ProductDetail;
 import org.beautybox.repository.ImageRepository;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
-import org.beautybox.repository.ProductRepository;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
 import org.beautybox.response.ProductDetailResponse;
@@ -45,9 +44,14 @@ public abstract class ProductMapper {
     @Mappings({
             @Mapping(target = "image", source = "imageUrl"),
             @Mapping(target = "status", expression = "java(this.convertStatus(product.getStock()))"),
-            @Mapping(target = "newPrice", expression = "java(this.getNewPrice(product.getPrice(), product.getDiscount()))")
+            @Mapping(target = "newPrice", expression = "java(this.getNewPrice(product.getPrice(), product.getDiscount()))"),
+            @Mapping(target = "totalSold", expression = "java(this.getTotalSoldProductDetail(product.getId()))")
     })
     public abstract ProductDetailResponse toProductDetailResponse(ProductDetail product);
+
+    protected long getTotalSoldProductDetail(String productDetailId){
+        return orderRepository.countByProductDetailId(productDetailId);
+    }
 
     protected long getTotalSold(String productId) {
         return orderRepository.countByProductId(productId);
