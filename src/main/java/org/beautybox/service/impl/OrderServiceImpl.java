@@ -14,8 +14,6 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.OrderMapper;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
-import org.beautybox.repository.RedisRepository;
-import org.beautybox.repository.UserRepository;
 import org.beautybox.request.OrderRequest;
 import org.beautybox.response.OrderResponse;
 import org.beautybox.service.OrderService;
@@ -162,11 +160,9 @@ public class OrderServiceImpl implements OrderService {
             String fieldName = itr.next();
             String fieldValue = vnp_Params.get(fieldName);
             if ((fieldValue != null) && (!fieldValue.isEmpty())) {
-                //Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
                 hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                //Build query
                 query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
                 query.append('=');
                 query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));

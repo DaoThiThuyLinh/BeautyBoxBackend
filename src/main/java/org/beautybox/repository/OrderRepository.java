@@ -20,6 +20,7 @@ public interface OrderRepository extends JpaRepository<OrderProduct, String> {
     long countByProductDetailId(String productDetailId);
 
     @Query(value = "FROM OrderProduct op " +
-            "WHERE op.user.id = :userId ")
+            "WHERE op.user.id = :userId " +
+            "ORDER BY op.createdAt desc ")
     List<OrderProduct> findByUserId(String userId);
 }
