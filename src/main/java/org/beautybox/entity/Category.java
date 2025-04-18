@@ -23,6 +23,6 @@ public class Category extends BaseEntity {
     @Column(unique = true, nullable = false)
     String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category")
     List<Product> products;
 }

@@ -113,7 +113,7 @@ public class ProductServiceImpl implements ProductService {
                             );
                             bool.must(t.match().field("isEnabled").matching(true));
                             if(value != null && !value.isBlank()){
-                                bool.must(t.match().fields("name", "description", "productDetails.name", "productDetails.description").matching(value).fuzzy());
+                                bool.must(t.phrase().fields("name", "description", "productDetails.name", "productDetails.description").matching(value).slop(2));
                             }
                             if(category != null && !category.isBlank()){
                                 bool.must(t.match().field("category.id").matching(category));
@@ -155,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
                 })
                 .highlighter(t-> t.plain().tag("<b>", "</b>"))
                 .fetchAll();
-        return searchResult.hits().stream().map(t-> t.toString().substring(1, t.toString().length() - 1)).toList();
+        return searchResult.hits().stream().distinct().map(t-> t.toString().substring(1, t.toString().length() - 1)).toList();
     }
 
     @Override

@@ -1,7 +1,11 @@
 package org.beautybox.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.beautybox.config.VNPayConfig;
+import org.beautybox.constraint.OrderStatus;
 import org.beautybox.entity.OrderProduct;
 import org.beautybox.entity.ProductDetail;
 import org.beautybox.entity.User;
@@ -10,22 +14,35 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.OrderMapper;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
+import org.beautybox.repository.RedisRepository;
 import org.beautybox.repository.UserRepository;
 import org.beautybox.request.OrderRequest;
+import org.beautybox.response.OrderResponse;
 import org.beautybox.service.OrderService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.*;
+
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
+    @Value("${vnpay.return.url}")
+    String vnp_ReturnUrl;
     final OrderMapper orderMapper;
     final OrderRepository orderRepository;
     final ProductDetailRepository productDetailRepository;
 
     @SneakyThrows
     @Override
-    public void add(User user, OrderRequest orderRequest) {
+    public String add(User user, OrderRequest orderRequest, HttpServletRequest request) {
         ProductDetail productDetail = productDetailRepository.findById(orderRequest.getProductDetailId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
@@ -41,6 +58,136 @@ public class OrderServiceImpl implements OrderService {
         orderProduct.setPrice(productDetail.getPrice());
         orderProduct.setDiscount(productDetail.getDiscount());
         orderProduct.setImageUrl(productDetail.getImageUrl());
+
+        if(orderProduct.getPaymentType() == 1) {
+            orderRepository.save(orderProduct);
+            return null;
+        }
+        orderProduct.setStatus(OrderStatus.AWAITING_PAYMENT);
         orderRepository.save(orderProduct);
+        return this.payment(orderProduct, request);
+    }
+
+    @Override
+    public String executePaymentResult(Map<String, String> params, HttpServletRequest request) throws BeautyBoxException, UnsupportedEncodingException {
+        String value = "";
+        List<String> fieldNames = new ArrayList<>(params.keySet());
+        Collections.sort(fieldNames);
+        Map<String, String> hashData = new HashMap<>();
+        for(String fieldName : fieldNames) {
+            String fieldValue = params.get(fieldName);
+            if ((fieldValue != null) && (!fieldValue.isEmpty())) {
+                fieldName = URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString());
+                fieldValue = URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString());
+                hashData.put(fieldName, fieldValue);
+            }
+        }
+        hashData.remove("vnp_SecureHashType");
+        String receivedHash = hashData.remove("vnp_SecureHash");
+        String signValue = VNPayConfig.hashAllFields(hashData);
+        if (signValue.equals(receivedHash)) {
+            OrderProduct order = orderRepository.findById(params.get("vnp_TxnRef")).orElseThrow(
+                    () -> new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_EXISTED)
+            );
+            LocalDateTime createdDate = order.getCreatedAt();
+            LocalDateTime timeout = createdDate.plusDays(1);
+            if(LocalDateTime.now().isAfter(timeout)) {
+                throw new BeautyBoxException(ErrorDetail.ERR_ORDER_TIME_VALID);
+            }
+            String vnp_ResponseCode = params.get("vnp_ResponseCode");
+            if(vnp_ResponseCode.equals("00")){
+                order.setStatus(OrderStatus.PENDING_CONFIRMATION);
+                orderRepository.save(order);
+                value = "Thanh toán thành công!";
+            }
+            if(vnp_ResponseCode.equals("11"))
+                value = "Giao dịch không thành công do: Đã hết hạn chờ thanh toán. Xin quý khách vui lòng thực hiện lại giao dịch.";
+            if(vnp_ResponseCode.equals("12"))
+                value = "Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng bị khóa.";
+            if(vnp_ResponseCode.equals("13"))
+                value = "Giao dịch không thành công do Quý khách nhập sai mật khẩu xác thực giao dịch (OTP). Xin quý khách vui lòng thực hiện lại giao dịch.";
+            if(vnp_ResponseCode.equals("24"))
+                value = "Giao dịch không thành công do: Khách hàng hủy giao dịch";
+            if(vnp_ResponseCode.equals("51"))
+                value = "Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư để thực hiện giao dịch.";
+            if(vnp_ResponseCode.equals("65"))
+                value = "Giao dịch không thành công do: Tài khoản của Quý khách đã vượt quá hạn mức giao dịch trong ngày.";
+            if(vnp_ResponseCode.equals("75"))
+                value = "Ngân hàng thanh toán đang bảo trì.";
+            if(vnp_ResponseCode.equals("79"))
+                value = "Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định. Xin quý khách vui lòng thực hiện lại giao dịch";
+        }else{
+            log.warn("Giao dịch giả mạo từ IP: {}", request.getRemoteAddr());
+            value = "Giao dịch không hợp lệ, vui lòng kết nối để biết thêm chi tiết";
+        }
+        return value;
+    }
+
+    @SneakyThrows
+    public String payment(OrderProduct orderProduct, HttpServletRequest req) {
+        String orderType = "other";
+        Long amount = orderProduct.getQuantity() * ( orderProduct.getPrice() - orderProduct.getPrice() * orderProduct.getDiscount() / 100)  * 100;
+        String vnp_TxnRef = orderProduct.getId();
+        String vnp_IpAddr = VNPayConfig.getIpAddress(req);
+        String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
+        vnp_Params.put("vnp_Command", VNPayConfig.vnp_Command);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toán đơn hàng " + orderProduct.getId());
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+        vnp_Params.put("vnp_OrderType", orderType);
+
+
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+        cld.add(Calendar.MINUTE, 10);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        Iterator<String> itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (!fieldValue.isEmpty())) {
+                //Build hash data
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                //Build query
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                if (itr.hasNext()) {
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        }
+        System.out.println(hashData);
+
+        String queryUrl = query.toString();
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
+        System.out.println(vnp_SecureHash);
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        return VNPayConfig.vnp_PayUrl + "?" + queryUrl;
+    }
+
+    @Override
+    public List<OrderResponse> get(String userId) {
+        List<OrderProduct> orders = orderRepository.findByUserId(userId);
+        return orders.stream().map(orderMapper::toResponse).toList();
     }
 }

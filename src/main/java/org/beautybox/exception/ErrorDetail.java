@@ -15,6 +15,8 @@ public enum ErrorDetail {
     , ERR_WHILE_UPLOAD(400, "Error uploading image")
     , ERR_PRODUCT_NOT_EXISTED(400, "Sản phẩm không tồn tại")
     , ERR_CART_EXISTED(400, "Giỏ hàng đã tồn tại")
+    , ERR_ORDER_NOT_EXISTED(400, "Đơn hàng không tồn tại")
+    , ERR_ORDER_TIME_VALID(400, "Đơn hàng đã qúa thời gian thanh toán") //24h
     ;
 
     private final int code;

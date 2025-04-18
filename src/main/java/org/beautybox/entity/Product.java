@@ -3,6 +3,8 @@ package org.beautybox.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
@@ -32,10 +34,12 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
             @JoinColumn(name = "category_id")
             @IndexedEmbedded(includePaths = {"id"})
+            @OnDelete(action = OnDeleteAction.SET_NULL)
     Category category;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
             @JoinColumn(name = "brand_id")
             @IndexedEmbedded(includePaths = {"id"})
+            @OnDelete(action = OnDeleteAction.SET_NULL)
     Brand brand;
 
     @IndexedEmbedded

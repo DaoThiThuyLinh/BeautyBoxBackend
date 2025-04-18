@@ -25,6 +25,6 @@ public class Brand extends BaseEntity {
     String imgUrl;
     @Column(columnDefinition = "text")
     String description;
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "brand")
     List<Product> products;
 }

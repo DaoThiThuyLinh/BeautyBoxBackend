@@ -33,6 +33,7 @@ public class OrderProduct extends BaseEntity {
     4. Đã nhận
     5. Đã huỷ đơn
     6. Không nhận hàng
+    7. Chờ thanh toán
      */
     int status;
     @Column(unique = true)

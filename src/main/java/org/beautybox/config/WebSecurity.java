@@ -26,6 +26,7 @@ public class WebSecurity {
             "/v3/api-docs/**"
             , "/swagger-ui/**"
             , "/swagger-ui.html"
+            , "/payment-result"
     };
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,6 +34,7 @@ public class WebSecurity {
                 .cors(httpSecurityCorsConfigurer -> corsFilter())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
+
                         t -> t.requestMatchers("/public-api/**").permitAll()
                                 .requestMatchers(listUnAuthenticate).permitAll()
                                 .requestMatchers("/admin-api/**").hasAuthority("ROLE_ADMIN")
