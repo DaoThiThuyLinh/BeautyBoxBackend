@@ -1,6 +1,5 @@
 package org.beautybox.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +16,7 @@ public class ProductDetailResponse {
     String status;
     int discount;
     int stock;
+    String description;
     long totalSold;
     String image;
 }

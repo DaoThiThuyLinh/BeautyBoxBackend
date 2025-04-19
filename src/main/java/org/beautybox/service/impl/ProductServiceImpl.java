@@ -10,6 +10,7 @@ import org.beautybox.mapper.ProductMapper;
 import org.beautybox.repository.*;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
+import org.beautybox.request.UpdateProductDetailRequest;
 import org.beautybox.request.UpdateProductRequest;
 import org.beautybox.response.PageResponse;
 import org.beautybox.response.ProductResponse;
@@ -64,6 +65,9 @@ public class ProductServiceImpl implements ProductService {
 
     private String getImageUrl(MultipartFile file) throws BeautyBoxException {
         try {
+            if(file == null || file.isEmpty()){
+                return null;
+            }
             var response = cloudinary.uploader().upload(file.getBytes(), Map.of());
             return response.get("url").toString();
         }catch (Exception e){
@@ -102,6 +106,19 @@ public class ProductServiceImpl implements ProductService {
         ProductDetail productDetail = productMapper.toProductDetail(productDetailRequest);
         productDetail.setImageUrl(imageUrl);
         productDetail.setProduct(product);
+        productDetailRepository.save(productDetail);
+    }
+
+    @Override
+    public void updateProductDetail(UpdateProductDetailRequest updateRequest) throws BeautyBoxException {
+        ProductDetail productDetail = productDetailRepository.findById(updateRequest.getId()).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
+        );
+        productDetail.setName(updateRequest.getName());
+        productDetail.setStock(updateRequest.getStock());
+        productDetail.setDiscount(updateRequest.getDiscount());
+        productDetail.setPrice(updateRequest.getPrice());
+        productDetail.setDescription(updateRequest.getDescription());
         productDetailRepository.save(productDetail);
     }
 

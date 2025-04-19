@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
+import org.beautybox.request.UpdateProductDetailRequest;
 import org.beautybox.request.UpdateProductRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.ProductService;
@@ -32,6 +33,7 @@ public class ProductController {
         return ApiResponse.success("Success");
     }
 
+    @Operation(summary = "Cập nhập thông tin sản phẩm cha")
     @PutMapping("/admin-api/product")
     public ApiResponse updateProduct(@RequestBody @Valid UpdateProductRequest updateProductRequest) throws BeautyBoxException {
         productService.updateProduct(updateProductRequest);
@@ -46,6 +48,14 @@ public class ProductController {
         productService.addProductDetail(request);
         return ApiResponse.success("Created product detail success");
     }
+
+    @Operation(summary = "Cập nhập thông tin sản phẩm con")
+    @PutMapping("/admin-api/product-detail")
+    public ApiResponse updateProductDetail(@RequestBody @Valid UpdateProductDetailRequest updateRequest) throws BeautyBoxException {
+        productService.updateProductDetail(updateRequest);
+        return ApiResponse.success("Cập nhập thành công");
+    }
+
 
     @DeleteMapping("/admin-api/product-detail/{productDetailId}")
     public ApiResponse deleteProductDetail(@PathVariable String productDetailId) throws BeautyBoxException {
