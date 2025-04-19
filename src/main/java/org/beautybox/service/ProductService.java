@@ -7,11 +7,13 @@ import org.beautybox.request.UpdateProductDetailRequest;
 import org.beautybox.request.UpdateProductRequest;
 import org.beautybox.response.PageResponse;
 import org.beautybox.response.ProductResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface ProductService {
     void add(CreateProductRequest productRequest) throws BeautyBoxException;
+    int addNewImage(String productId, List<MultipartFile> images) throws BeautyBoxException;
     void updateProduct(UpdateProductRequest productRequest) throws BeautyBoxException;
     void addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException;
     void updateProductDetail(UpdateProductDetailRequest updateRequest) throws BeautyBoxException;

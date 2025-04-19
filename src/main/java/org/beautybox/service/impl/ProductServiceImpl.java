@@ -63,6 +63,25 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public int addNewImage(String productId, List<MultipartFile> images) throws BeautyBoxException {
+        int count = 0;
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
+        );
+        for(var item : images){
+            String url = this.getImageUrl(item);
+            if(url == null)
+                continue;
+            count++;
+            Image image = new Image();
+            image.setUrl(url);
+            image.setProduct(product);
+            imageRepository.save(image);
+        }
+        return count;
+    }
+
     private String getImageUrl(MultipartFile file) throws BeautyBoxException {
         try {
             if(file == null || file.isEmpty()){

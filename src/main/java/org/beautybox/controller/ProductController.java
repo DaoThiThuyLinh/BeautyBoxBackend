@@ -14,6 +14,7 @@ import org.beautybox.request.UpdateProductRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.ProductService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +32,14 @@ public class ProductController {
     public ApiResponse createProduct(@ModelAttribute @Valid CreateProductRequest request) throws BeautyBoxException {
         productService.add(request);
         return ApiResponse.success("Success");
+    }
+
+    @Operation(summary = "Thêm ảnh cho sản phẩm", description = "Param form data")
+    @PostMapping("/admin-api/product/image/{productId}")
+    public ApiResponse createNewImage(@PathVariable String productId,
+                                      @RequestParam List<MultipartFile> images) throws BeautyBoxException {
+        int cntSuccess = productService.addNewImage(productId, images);
+        return ApiResponse.success("Thêm " + cntSuccess + " ảnh thành công");
     }
 
     @Operation(summary = "Cập nhập thông tin sản phẩm cha")
