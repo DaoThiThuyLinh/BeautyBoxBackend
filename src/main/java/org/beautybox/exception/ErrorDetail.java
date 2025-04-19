@@ -17,6 +17,8 @@ public enum ErrorDetail {
     , ERR_CART_EXISTED(400, "Giỏ hàng đã tồn tại")
     , ERR_ORDER_NOT_EXISTED(400, "Đơn hàng không tồn tại")
     , ERR_ORDER_TIME_VALID(400, "Đơn hàng đã qúa thời gian thanh toán") //24h
+    , ERR_ORDER_NOT_CORRECT(400, "Chỉ có thể thực hiện thanh toán cho đơn hàng của bạn")
+    , ERR_JUST_PAY(400, "Chỉ thực hiện thanh toán lại với các đơn hàng có trạng thái chờ thanh toán")
     , ERR_IMAGE_NOT_EXISTED(400, "Không tìm thấy thông tin ảnh")
     ;
 

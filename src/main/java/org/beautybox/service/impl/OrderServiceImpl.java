@@ -14,6 +14,7 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.OrderMapper;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
+import org.beautybox.repository.RedisRepository;
 import org.beautybox.request.OrderRequest;
 import org.beautybox.response.OrderResponse;
 import org.beautybox.service.OrderService;
@@ -37,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     final OrderMapper orderMapper;
     final OrderRepository orderRepository;
     final ProductDetailRepository productDetailRepository;
+    final RedisRepository redisRepository;
 
     @SneakyThrows
     @Override
@@ -67,6 +69,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public String payAgain(String orderId, HttpServletRequest request, User user) throws BeautyBoxException{
+        OrderProduct order = orderRepository.findById(orderId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_EXISTED)
+        );
+        if(order.getStatus() != OrderStatus.AWAITING_PAYMENT){
+            throw new BeautyBoxException(ErrorDetail.ERR_JUST_PAY);
+        }
+        if(!user.getId().equals(order.getUser().getId())) {
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_CORRECT);
+        }
+        LocalDateTime createDate = order.getCreatedAt();
+        if(LocalDateTime.now().isAfter(createDate.plusDays(1))) {
+            order.setStatus(OrderStatus.CANCELLED);
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_TIME_VALID);
+        }
+        return this.payment(order, request);
+    }
+
+    @Override
     public String executePaymentResult(Map<String, String> params, HttpServletRequest request) throws BeautyBoxException, UnsupportedEncodingException {
         String value = "";
         List<String> fieldNames = new ArrayList<>(params.keySet());
@@ -84,7 +105,8 @@ public class OrderServiceImpl implements OrderService {
         String receivedHash = hashData.remove("vnp_SecureHash");
         String signValue = VNPayConfig.hashAllFields(hashData);
         if (signValue.equals(receivedHash)) {
-            OrderProduct order = orderRepository.findById(params.get("vnp_TxnRef")).orElseThrow(
+            String orderId = redisRepository.get(params.get("vnp_TxnRef")).toString();
+            OrderProduct order = orderRepository.findById(orderId).orElseThrow(
                     () -> new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_EXISTED)
             );
             LocalDateTime createdDate = order.getCreatedAt();
@@ -125,7 +147,8 @@ public class OrderServiceImpl implements OrderService {
     public String payment(OrderProduct orderProduct, HttpServletRequest req) {
         String orderType = "other";
         Long amount = orderProduct.getQuantity() * ( orderProduct.getPrice() - orderProduct.getPrice() * orderProduct.getDiscount() / 100)  * 100;
-        String vnp_TxnRef = orderProduct.getId();
+        String vnp_TxnRef = orderProduct.getId() + LocalDateTime.now();// Khi cần thanh toán lại thì cần tạo mã thanh toán mới
+        this.redisRepository.set(vnp_TxnRef, orderProduct.getId()); // Lưu lại giá trị thực tế của OrderId
         String vnp_IpAddr = VNPayConfig.getIpAddress(req);
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
         Map<String, String> vnp_Params = new HashMap<>();
