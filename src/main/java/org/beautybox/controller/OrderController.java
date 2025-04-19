@@ -32,6 +32,12 @@ public class OrderController {
         return ApiResponse.success("Thành công", orderService.get(userId));
     }
 
+    @DeleteMapping("/order")
+    public ApiResponse cancelOrder(@RequestParam String orderId, @CurrentUser User user) throws BeautyBoxException {
+        orderService.cancelOrder(orderId, user);
+        return ApiResponse.success("Thành công");
+    }
+
     @PostMapping("/order/pay-again")
     public ApiResponse payAgain(@RequestParam String orderId, HttpServletRequest request, @CurrentUser User user) throws BeautyBoxException {
         String payUrl = orderService.payAgain(orderId, request, user);

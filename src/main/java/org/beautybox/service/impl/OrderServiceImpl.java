@@ -71,6 +71,38 @@ public class OrderServiceImpl implements OrderService {
         return this.payment(orderProduct, request);
     }
 
+    @SneakyThrows
+    @Override
+    public void cancelOrder(String orderId, User user) throws BeautyBoxException {
+        OrderProduct order = orderRepository.findById(orderId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_EXISTED)
+        );
+        if(!user.getId().equals(order.getUser().getId())) {
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
+        }
+        if(order.getPaymentType() == 1){
+            if(order.getStatus() == OrderStatus.PENDING_CONFIRMATION) { // Chỉ huỷ đơn hàng có trạng thái chờ xác nhận
+                order.setStatus(OrderStatus.CANCELLED);
+                orderRepository.save(order);
+            }else{
+                if(order.getStatus() == OrderStatus.CANCELLED) {
+                    throw new RuntimeException("Đơn hàng đã được huỷ trước đó");
+                }
+                throw new RuntimeException("Vui lòng chỉ huỷ đơn hàng có trạng thái chờ xác nhận");
+            }
+        }else{
+            if(order.getStatus() == OrderStatus.AWAITING_PAYMENT) {
+                order.setStatus(OrderStatus.CANCELLED);
+                orderRepository.save(order);
+            }else{
+                if(order.getStatus() == OrderStatus.CANCELLED) {
+                    throw new RuntimeException("Đơn hàng đã được huỷ trước đó");
+                }
+                throw new RuntimeException("Đơn hàng đã thanh toán không thể huỷ");
+            }
+        }
+    }
+
     @Override
     public String payAgain(String orderId, HttpServletRequest request, User user) throws BeautyBoxException{
         OrderProduct order = orderRepository.findById(orderId).orElseThrow(
@@ -80,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
             throw new BeautyBoxException(ErrorDetail.ERR_JUST_PAY);
         }
         if(!user.getId().equals(order.getUser().getId())) {
-            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_CORRECT);
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
         }
         LocalDateTime createDate = order.getCreatedAt();
         if(LocalDateTime.now().isAfter(createDate.plusDays(1))) {
