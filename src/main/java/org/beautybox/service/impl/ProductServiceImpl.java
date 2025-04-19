@@ -141,6 +141,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void deleteImage(String imageId) throws BeautyBoxException {
+        Image image = imageRepository.findById(imageId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_IMAGE_NOT_EXISTED)
+        );
+        imageRepository.delete(image);
+    }
+
+    @Override
     public PageResponse<?> filterProduct(String value, String category, String brand, long minPrice, long maxPrice, int pageIndex, int pageSize, String orderBy, String direction) {
         SearchSession searchSession = Search.session(entityManager);
         SearchResult<Product> searchResult = searchSession.search(Product.class)
