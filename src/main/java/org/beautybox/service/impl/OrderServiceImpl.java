@@ -46,7 +46,10 @@ public class OrderServiceImpl implements OrderService {
         ProductDetail productDetail = productDetailRepository.findById(orderRequest.getProductDetailId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
-
+        long totalSold = orderRepository.countByProductDetailId(orderRequest.getProductDetailId());
+        if(productDetail.getStock() - totalSold < orderRequest.getQuantity()) {
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER);
+        }
         OrderProduct orderProduct = orderMapper.toOrder(orderRequest);
 
         orderProduct.setUser(user);

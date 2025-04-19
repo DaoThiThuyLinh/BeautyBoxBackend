@@ -9,16 +9,16 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderProduct, String> {
-    @Query(value = "SELECT count(*) " +
+    @Query(value = "SELECT COALESCE(SUM(op.quantity), 0) " +
             "FROM OrderProduct op " +
             "WHERE op.productId = :productId " +
-            "AND op.status not in (5, 6, 7) ")
+            "AND op.status not in (5, 6) ")
     long countByProductId(String productId);
 
-    @Query(value = "SELECT count(*)" +
+    @Query(value = "SELECT COALESCE(SUM(op.quantity), 0) " +
             "FROM OrderProduct op " +
             "WHERE op.productDetailId = :productDetailId " +
-            "AND op.status not in (5, 6, 7) ")
+            "AND op.status not in (5, 6) ")
     long countByProductDetailId(String productDetailId);
 
     @Query(value = "FROM OrderProduct op " +

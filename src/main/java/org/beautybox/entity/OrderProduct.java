@@ -64,7 +64,7 @@ public class OrderProduct extends BaseEntity {
     long price;
     @Column(nullable = false, updatable = false)
     int discount;
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     String imageUrl;
 
     @ManyToOne
