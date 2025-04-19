@@ -10,6 +10,7 @@ import org.beautybox.mapper.ProductMapper;
 import org.beautybox.repository.*;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
+import org.beautybox.request.UpdateProductRequest;
 import org.beautybox.response.PageResponse;
 import org.beautybox.response.ProductResponse;
 import org.beautybox.service.ProductService;
@@ -68,6 +69,28 @@ public class ProductServiceImpl implements ProductService {
         }catch (Exception e){
             throw new BeautyBoxException(ErrorDetail.ERR_WHILE_UPLOAD);
         }
+    }
+
+    @Override
+    public void updateProduct(UpdateProductRequest updateRequest) throws BeautyBoxException {
+        Product product = productRepository.findById(updateRequest.getProductId()).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
+        );
+        if(product.getCategory() == null || !product.getCategory().getId().equals(updateRequest.getCategoryId())){
+            Category category = categoryRepository.findById(updateRequest.getCategoryId()).orElseThrow(
+                    () -> new BeautyBoxException(ErrorDetail.ERR_CATEGORY_NOT_EXISTED)
+            );
+            product.setCategory(category);
+        }
+        if(product.getBrand() == null || !product.getBrand().getId().equals(updateRequest.getBrandId())){
+            Brand brand = brandRepository.findById(updateRequest.getBrandId()).orElseThrow(
+                    () -> new BeautyBoxException(ErrorDetail.ERR_BRAND_NOT_EXISTED)
+            );
+            product.setBrand(brand);
+        }
+        product.setName(updateRequest.getName());
+        product.setDescription(updateRequest.getDescription());
+        productRepository.save(product);
     }
 
     @Override

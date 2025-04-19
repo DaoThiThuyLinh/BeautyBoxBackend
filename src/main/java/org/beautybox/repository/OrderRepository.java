@@ -11,12 +11,14 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderProduct, String> {
     @Query(value = "SELECT count(*) " +
             "FROM OrderProduct op " +
-            "WHERE op.productId = :productId ")
+            "WHERE op.productId = :productId " +
+            "AND op.status not in (5, 6, 7) ")
     long countByProductId(String productId);
 
     @Query(value = "SELECT count(*)" +
             "FROM OrderProduct op " +
-            "WHERE op.productDetailId = :productDetailId")
+            "WHERE op.productDetailId = :productDetailId " +
+            "AND op.status not in (5, 6, 7) ")
     long countByProductDetailId(String productDetailId);
 
     @Query(value = "FROM OrderProduct op " +

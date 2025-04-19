@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
+import org.beautybox.request.UpdateProductRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.ProductService;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class ProductController {
     public ApiResponse createProduct(@ModelAttribute @Valid CreateProductRequest request) throws BeautyBoxException {
         productService.add(request);
         return ApiResponse.success("Success");
+    }
+
+    @PutMapping("/admin-api/product")
+    public ApiResponse updateProduct(@RequestBody @Valid UpdateProductRequest updateProductRequest) throws BeautyBoxException {
+        productService.updateProduct(updateProductRequest);
+        return ApiResponse.success("Cập nhập thành công") ;
     }
 
     @Operation(summary = "Thêm sản phẩm con", security = {
