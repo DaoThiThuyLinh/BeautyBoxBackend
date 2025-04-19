@@ -31,11 +31,14 @@ public class BrandServiceImpl implements BrandService {
         if(brandRepository.existsByName(request.getName())) {
             throw new BeautyBoxException(ErrorDetail.ERR_BRAND_EXISTED);
         }
-        var response = cloudinary.uploader().upload(request.getImage().getBytes(), Map.of());
+
         Brand brand = new Brand();
         brand.setName(request.getName());
         brand.setDescription(request.getDescription());
-        brand.setImgUrl(response.get("url") + "");
+        if(request.getImage() != null && !request.getImage().isEmpty()) {
+            var response = cloudinary.uploader().upload(request.getImage().getBytes(), Map.of());
+            brand.setImgUrl(response.get("url") + "");
+        }
         brandRepository.save(brand);
     }
 
