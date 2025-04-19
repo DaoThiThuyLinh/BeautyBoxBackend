@@ -1,5 +1,6 @@
 package org.beautybox.mapper;
 
+import org.beautybox.entity.Image;
 import org.beautybox.entity.Product;
 import org.beautybox.entity.ProductDetail;
 import org.beautybox.repository.ImageRepository;
@@ -7,6 +8,7 @@ import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
+import org.beautybox.response.ImageResponse;
 import org.beautybox.response.ProductDetailResponse;
 import org.beautybox.response.ProductResponse;
 import org.mapstruct.Mapper;
@@ -41,7 +43,7 @@ public abstract class ProductMapper {
             @Mapping(target = "brandId", source = "brand.id"),
             @Mapping(target = "brandName", source = "brand.name"),
             @Mapping(target = "brandImgUrl", source = "brand.imgUrl"),
-            @Mapping(target = "images", expression = "java(imageRepository.findByProductId(product.getId()))"),
+            @Mapping(target = "images", expression = "java(this.getProductImages(product.getId()))"),
             @Mapping(target = "details", expression = "java(this.productDetailResponses(product.getId()))"),
             @Mapping(target = "totalSold", expression = "java(this.getTotalSold(product.getId()))")
         }
@@ -56,6 +58,16 @@ public abstract class ProductMapper {
             @Mapping(target = "totalSold", expression = "java(this.getTotalSoldProductDetail(product.getId()))")
     })
     public abstract ProductDetailResponse toProductDetailResponse(ProductDetail product);
+
+    protected List<ImageResponse> getProductImages(String productId) {
+        List<Image> images = imageRepository.findByProductId(productId);
+        return images.stream().map(t -> {
+            ImageResponse imageResponse = new ImageResponse();
+            imageResponse.setId(t.getId());
+            imageResponse.setImage(t.getUrl());
+            return imageResponse;
+        }).toList();
+    }
 
     protected long getTotalSoldProductDetail(String productDetailId){
         return orderRepository.countByProductDetailId(productDetailId);

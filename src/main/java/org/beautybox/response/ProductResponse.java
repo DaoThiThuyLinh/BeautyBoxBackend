@@ -22,6 +22,6 @@ public class ProductResponse {
     double averageRating;
     long totalNumRating;
     long totalSold;
-    List<String> images;
+    List<ImageResponse> images;
     List<ProductDetailResponse> details;
 }

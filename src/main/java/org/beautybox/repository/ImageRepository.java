@@ -9,8 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, String> {
-    @Query("SELECT im.url " +
-            "FROM Image im " +
+    @Query("FROM Image im " +
             "where im.product.id = :productId  ")
-    List<String> findByProductId(String productId);
+    List<Image> findByProductId(String productId);
 }
