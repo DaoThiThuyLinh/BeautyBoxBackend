@@ -5,9 +5,11 @@ import org.beautybox.anotation.CurrentUser;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.ReviewRequest;
+import org.beautybox.request.UpdateReviewRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.ReviewService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,5 +23,11 @@ public class ReviewController {
     public ApiResponse addNewReview(@RequestBody ReviewRequest reviewRequest, @CurrentUser User user) throws BeautyBoxException {
         reviewService.addReview(reviewRequest, user);
         return ApiResponse.success("Đã thêm đánh giá thành công");
+    }
+
+    @PutMapping("/review")
+    public ApiResponse updateReview(@RequestBody UpdateReviewRequest updateRequest, @CurrentUser User user) throws BeautyBoxException {
+        reviewService.updateReview(updateRequest, user);
+        return ApiResponse.success("Đánh giá đã được sửa");
     }
 }

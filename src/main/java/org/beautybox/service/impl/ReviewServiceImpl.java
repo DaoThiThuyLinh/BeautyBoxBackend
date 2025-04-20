@@ -10,6 +10,7 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ReviewRepository;
 import org.beautybox.request.ReviewRequest;
+import org.beautybox.request.UpdateReviewRequest;
 import org.beautybox.service.ReviewService;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,19 @@ public class ReviewServiceImpl implements ReviewService {
         review.setRating(reviewRequest.getRating());
         review.setUser(user);
 
+        reviewRepository.save(review);
+    }
+
+    @Override
+    public void updateReview(UpdateReviewRequest updateRequest, User user) {
+        Review review = reviewRepository.findById(updateRequest.getReviewId()).orElseThrow(
+                () -> new RuntimeException("Đánh giá không tồn tại")
+        );
+        if(!review.getUser().getId().equals(user.getId())){
+            throw new RuntimeException("Chỉ có thể chỉnh sửa với đánh giá của bạn");
+        }
+        review.setComment(updateRequest.getComment());
+        review.setRating(updateRequest.getRating());
         reviewRepository.save(review);
     }
 }
