@@ -15,6 +15,8 @@ public interface OrderRepository extends JpaRepository<OrderProduct, String> {
             "AND op.status not in (5, 6) ")
     long countByProductId(String productId);
 
+    boolean existsByOrderCode(String orderCode);
+
     @Query(value = "SELECT COALESCE(SUM(op.quantity), 0) " +
             "FROM OrderProduct op " +
             "WHERE op.productDetailId = :productDetailId " +

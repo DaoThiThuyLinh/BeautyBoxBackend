@@ -25,6 +25,7 @@ public class OrderProduct extends BaseEntity {
     1. Thanh toán tiền mặt
     2. Thanh toán qua VNPay
      */
+    @Column(nullable = false, updatable = false)
     int paymentType;
     /*
     1. Chờ xác nhận

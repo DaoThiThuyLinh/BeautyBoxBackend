@@ -7,6 +7,7 @@ import org.beautybox.anotation.CurrentUser;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.OrderRequest;
+import org.beautybox.request.UpdateOrderRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.OrderService;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,12 @@ public class OrderController {
             return ApiResponse.success("Đặt hàng thành công");
         }
         return ApiResponse.success("Chờ thanh toán", result);
+    }
+
+    @PutMapping("/admin-api/order")
+    public ApiResponse update(@RequestBody @Valid UpdateOrderRequest updateRequest) throws BeautyBoxException {
+        orderService.update(updateRequest);
+        return ApiResponse.success("Sửa thông tin đơn hàng thành công");
     }
 
     @GetMapping("/order/{userId}")

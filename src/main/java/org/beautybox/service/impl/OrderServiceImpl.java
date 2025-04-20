@@ -16,6 +16,7 @@ import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
 import org.beautybox.repository.RedisRepository;
 import org.beautybox.request.OrderRequest;
+import org.beautybox.request.UpdateOrderRequest;
 import org.beautybox.response.OrderResponse;
 import org.beautybox.service.OrderService;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,9 +72,22 @@ public class OrderServiceImpl implements OrderService {
         return this.payment(orderProduct, request);
     }
 
+    @Override
+    public void update(UpdateOrderRequest updateRequest) throws BeautyBoxException {
+        OrderProduct order = orderRepository.findById(updateRequest.getOrderId()).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_EXISTED)
+        );
+        if(updateRequest.getOrderCode() != null && !updateRequest.getOrderCode().equals(order.getOrderCode()) && orderRepository.existsByOrderCode(updateRequest.getOrderCode())) {
+            throw new RuntimeException("Mã vận chuyển đã tồn tại");
+        }
+        order.setStatus(updateRequest.getStatus());
+        order.setOrderCode(updateRequest.getOrderCode());
+        orderRepository.save(order);
+    }
+
     @SneakyThrows
     @Override
-    public void cancelOrder(String orderId, User user) throws BeautyBoxException {
+    public void cancelOrder(String orderId, User user){
         OrderProduct order = orderRepository.findById(orderId).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_ORDER_NOT_EXISTED)
         );
