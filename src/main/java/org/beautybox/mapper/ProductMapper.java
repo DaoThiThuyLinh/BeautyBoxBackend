@@ -6,17 +6,21 @@ import org.beautybox.entity.ProductDetail;
 import org.beautybox.repository.ImageRepository;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
+import org.beautybox.repository.ReviewRepository;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
 import org.beautybox.response.ImageResponse;
 import org.beautybox.response.ProductDetailResponse;
 import org.beautybox.response.ProductResponse;
+import org.beautybox.response.ReviewResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public abstract class ProductMapper {
@@ -27,6 +31,8 @@ public abstract class ProductMapper {
     ProductDetailRepository productDetailRepository;
     @Autowired
     OrderRepository orderRepository;
+    @Autowired
+    ReviewRepository reviewRepository;
 
 
     @Mapping(target = "isEnabled", constant = "true")
@@ -43,6 +49,7 @@ public abstract class ProductMapper {
             @Mapping(target = "brandId", source = "brand.id"),
             @Mapping(target = "brandName", source = "brand.name"),
             @Mapping(target = "brandImgUrl", source = "brand.imgUrl"),
+            @Mapping(target = "reviewsResponse", expression = "java(this.getReviews(product.getId()))"),
             @Mapping(target = "images", expression = "java(this.getProductImages(product.getId()))"),
             @Mapping(target = "details", expression = "java(this.productDetailResponses(product.getId()))"),
             @Mapping(target = "totalSold", expression = "java(this.getTotalSold(product.getId()))")
@@ -58,6 +65,27 @@ public abstract class ProductMapper {
             @Mapping(target = "totalSold", expression = "java(this.getTotalSoldProductDetail(product.getId()))")
     })
     public abstract ProductDetailResponse toProductDetailResponse(ProductDetail product);
+
+
+    protected Map<String, Object> getReviews(String productId){
+        Map<String, Object> response = new HashMap<>();
+        List<ReviewResponse> reviewResponses = reviewRepository.findByProductId(productId).stream().map(t -> {
+            ReviewResponse review = new ReviewResponse();
+            review.setId(t.getId());
+            review.setRating(t.getRating());
+            review.setComment(t.getComment());
+            return review;
+        }).toList();
+        response.put("reviews", reviewResponses);
+        response.put("totalNumRating", reviewResponses.size());
+
+        long sumRate = 0;
+        for(ReviewResponse review : reviewResponses){
+            sumRate += review.getRating();
+        }
+        response.put("averageRating", (double) (sumRate / reviewResponses.size()));
+        return response;
+    }
 
     protected List<ImageResponse> getProductImages(String productId) {
         List<Image> images = imageRepository.findByProductId(productId);

@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -19,9 +21,8 @@ public class ProductResponse {
     String brandId;
     String brandName;
     String brandImgUrl;
-    double averageRating;
-    long totalNumRating;
     long totalSold;
-    List<ImageResponse> images;
     List<ProductDetailResponse> details;
+    List<ImageResponse> images;
+    Map<String, Object> reviewsResponse;
 }
