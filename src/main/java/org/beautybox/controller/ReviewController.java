@@ -1,0 +1,25 @@
+package org.beautybox.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.beautybox.anotation.CurrentUser;
+import org.beautybox.entity.User;
+import org.beautybox.exception.BeautyBoxException;
+import org.beautybox.request.ReviewRequest;
+import org.beautybox.response.ApiResponse;
+import org.beautybox.service.ReviewService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class ReviewController {
+
+    final ReviewService reviewService;
+
+    @PostMapping("/review")
+    public ApiResponse addNewReview(@RequestBody ReviewRequest reviewRequest, @CurrentUser User user) throws BeautyBoxException {
+        reviewService.addReview(reviewRequest, user);
+        return ApiResponse.success("Đã thêm đánh giá thành công");
+    }
+}

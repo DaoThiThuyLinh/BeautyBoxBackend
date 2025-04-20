@@ -26,6 +26,6 @@ public class Review extends BaseEntity {
             @JoinColumn(name = "user_id")
     User user;
     @ManyToOne
-            @JoinColumn(name = "product_id")
-    Product product;
+            @JoinColumn
+    OrderProduct oder;
 }
