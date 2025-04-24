@@ -3,10 +3,7 @@ package org.beautybox.mapper;
 import org.beautybox.entity.Image;
 import org.beautybox.entity.Product;
 import org.beautybox.entity.ProductDetail;
-import org.beautybox.repository.ImageRepository;
-import org.beautybox.repository.OrderRepository;
-import org.beautybox.repository.ProductDetailRepository;
-import org.beautybox.repository.ReviewRepository;
+import org.beautybox.repository.*;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
 import org.beautybox.response.ImageResponse;
@@ -33,6 +30,8 @@ public abstract class ProductMapper {
     OrderRepository orderRepository;
     @Autowired
     ReviewRepository reviewRepository;
+    @Autowired
+    OrderItemRepository orderItemRepository;
 
 
     @Mapping(target = "isEnabled", constant = "true")
@@ -83,7 +82,7 @@ public abstract class ProductMapper {
         for(ReviewResponse review : reviewResponses){
             sumRate += review.getRating();
         }
-        response.put("averageRating", (double) (sumRate / reviewResponses.size()));
+        response.put("averageRating", (double) (sumRate / (reviewResponses.isEmpty() ? 1: reviewResponses.size() )));
         return response;
     }
 
@@ -98,11 +97,11 @@ public abstract class ProductMapper {
     }
 
     protected long getTotalSoldProductDetail(String productDetailId){
-        return orderRepository.countByProductDetailId(productDetailId);
+        return orderItemRepository.sumByProductDetailId(productDetailId);
     }
 
     protected long getTotalSold(String productId) {
-        return orderRepository.countByProductId(productId);
+        return orderItemRepository.sumByProductId(productId);
     }
 
     protected List<ProductDetailResponse> productDetailResponses(String productId){

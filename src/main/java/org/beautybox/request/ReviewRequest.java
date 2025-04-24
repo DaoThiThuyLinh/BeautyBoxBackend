@@ -16,6 +16,6 @@ public class ReviewRequest {
     @Max(value = 5, message = "Số sao đánh giá chỉ từ 0 đến 5")
     Integer rating;
     String comment;
-    @NotBlank(message = "Bạn cần lựa chọn đơn hàng để thực hiện đánh giá")
-    String orderId;
+    @NotBlank(message = "Bạn cần lựa chọn sản phẩm để thực hiện đánh giá")
+    String orderItemId;
 }

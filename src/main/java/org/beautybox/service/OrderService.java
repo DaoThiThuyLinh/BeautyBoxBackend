@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Service
 public interface OrderService {
-    String add(User user, OrderRequest orderRequest, HttpServletRequest request);
+    String add(User user, OrderRequest orderRequest, HttpServletRequest request) throws BeautyBoxException;
     void cancelOrder(String orderId, User user) throws BeautyBoxException;
     void update(UpdateOrderRequest updateRequest) throws BeautyBoxException;
     String payAgain(String orderId, HttpServletRequest request, User user) throws BeautyBoxException;

@@ -20,7 +20,7 @@ public class OrderController {
     final OrderService orderService;
 
     @PostMapping("/order")
-    public ApiResponse order(@RequestBody @Valid OrderRequest orderRequest, HttpServletRequest request, @CurrentUser User user) {
+    public ApiResponse order(@RequestBody @Valid OrderRequest orderRequest, HttpServletRequest request, @CurrentUser User user) throws BeautyBoxException {
         String result = orderService.add(user, orderRequest, request);
         if(result == null) {
             return ApiResponse.success("Đặt hàng thành công");

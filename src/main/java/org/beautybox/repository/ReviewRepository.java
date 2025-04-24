@@ -11,10 +11,10 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, String> {
     @Query("SELECT count(*) > 0 " +
             "FROM Review r " +
-            "WHERE r.oder.id = :oderId ")
-    boolean existsByOrderId(String oderId);
+            "WHERE r.orderItem.id = :orderItemId ")
+    boolean existsByOrderItemId(String orderItemId);
 
     @Query("FROM Review r " +
-            "WHERE r.oder.productId = :productId ")
+            "WHERE r.orderItem.productId = :productId ")
     List<Review> findByProductId(String productId);
 }

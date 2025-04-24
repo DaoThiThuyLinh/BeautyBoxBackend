@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,7 +13,6 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderResponse {
     String id;
-    int quantity;
     long totalAmount;
     String notes;
     String paymentType;
@@ -24,14 +24,26 @@ public class OrderResponse {
     String detailAddress;
     String recipientName;
     String recipientPhoneNumber;
-    String productId;
-    String productName;
-    String description;
-    String productDetailId;
-    String productDetailName;
-    long price;
-    int discount;
-    String imageUrl;
     String userId;
     LocalDateTime orderTime;
+    List<innerResponse> orderItemsResponse;
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class innerResponse{
+        String id;
+        int quantity;
+        String productId;
+        String productName;
+        String description;
+        String productDetailId;
+        String productDetailName;
+        long price;
+        int discount;
+        String imageUrl;
+    }
 }

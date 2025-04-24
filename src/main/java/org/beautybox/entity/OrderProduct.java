@@ -1,9 +1,10 @@
 package org.beautybox.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,10 +17,7 @@ public class OrderProduct extends BaseEntity {
         @GeneratedValue(strategy = GenerationType.UUID)
             @Column(length = 36)
     String id;
-    @Min(value = 1, message = "Quantity must be greater than 1")
-    @Column(nullable = false, updatable = false)
-    int quantity;
-    @Column(unique = true, updatable = false)
+    @Column(updatable = false)
     String notes;
     /*
     1. Thanh toán tiền mặt
@@ -51,24 +49,11 @@ public class OrderProduct extends BaseEntity {
     String recipientName;
     @Column(updatable = false, nullable = false, length = 12)
     String recipientPhoneNumber;
-    @Column(length = 36, nullable = false, updatable = false)
-    String productId;
-    @Column(columnDefinition = "varchar(100)", nullable = false, updatable = false)
-    String productName;
-    @Column(columnDefinition = "text", updatable = false)
-    String description;
-    @Column(length = 36, nullable = false, updatable = false)
-    String productDetailId;
-    @Column(columnDefinition = "varchar(100)", nullable = false, updatable = false)
-    String productDetailName;
-    @Column(nullable = false, updatable = false)
-    long price;
-    @Column(nullable = false, updatable = false)
-    int discount;
-    @Column(updatable = false)
-    String imageUrl;
 
     @ManyToOne
     @JoinColumn
     User user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    List<OrderItem> orderItems;
 }

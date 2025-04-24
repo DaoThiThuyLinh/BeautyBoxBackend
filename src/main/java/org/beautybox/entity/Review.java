@@ -27,5 +27,5 @@ public class Review extends BaseEntity {
     User user;
     @ManyToOne
             @JoinColumn
-    OrderProduct oder;
+    OrderItem orderItem;
 }

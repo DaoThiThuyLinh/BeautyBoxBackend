@@ -6,12 +6,14 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.beautybox.config.VNPayConfig;
 import org.beautybox.constraint.OrderStatus;
+import org.beautybox.entity.OrderItem;
 import org.beautybox.entity.OrderProduct;
 import org.beautybox.entity.ProductDetail;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.OrderMapper;
+import org.beautybox.repository.OrderItemRepository;
 import org.beautybox.repository.OrderRepository;
 import org.beautybox.repository.ProductDetailRepository;
 import org.beautybox.repository.RedisRepository;
@@ -21,6 +23,7 @@ import org.beautybox.response.OrderResponse;
 import org.beautybox.service.OrderService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -40,35 +43,52 @@ public class OrderServiceImpl implements OrderService {
     final OrderRepository orderRepository;
     final ProductDetailRepository productDetailRepository;
     final RedisRepository redisRepository;
+    final OrderItemRepository orderItemRepository;
 
-    @SneakyThrows
     @Override
-    public String add(User user, OrderRequest orderRequest, HttpServletRequest request) {
-        ProductDetail productDetail = productDetailRepository.findById(orderRequest.getProductDetailId()).orElseThrow(
-                () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
-        );
-        long totalSold = orderRepository.countByProductDetailId(orderRequest.getProductDetailId());
-        if(productDetail.getStock() - totalSold < orderRequest.getQuantity()) {
-            throw new BeautyBoxException(ErrorDetail.ERR_ORDER);
-        }
+    @Transactional(rollbackFor = RuntimeException.class )
+    public String add(User user, OrderRequest orderRequest, HttpServletRequest request) throws BeautyBoxException {
+
         OrderProduct orderProduct = orderMapper.toOrder(orderRequest);
-
         orderProduct.setUser(user);
-        orderProduct.setProductId(productDetail.getProduct().getId());
-        orderProduct.setProductName(productDetail.getProduct().getName());
-        orderProduct.setDescription(productDetail.getProduct().getDescription());
-        orderProduct.setProductDetailId(productDetail.getId());
-        orderProduct.setProductDetailName(productDetail.getName());
-        orderProduct.setPrice(productDetail.getPrice());
-        orderProduct.setDiscount(productDetail.getDiscount());
-        orderProduct.setImageUrl(productDetail.getImageUrl());
+        orderRepository.save(orderProduct);
+        orderRepository.flush();
 
+        if(orderProduct.getPaymentType() == 2) {
+            orderProduct.setStatus(OrderStatus.AWAITING_PAYMENT);
+        }
+        List<OrderRequest.innerRequest> orderItems = orderRequest.getOrderItems();
+        List<OrderItem> data = new ArrayList<>();
+        for(int i = 0 ; i< orderItems.size() ; i++){
+            Optional<ProductDetail> productDetailOptional = productDetailRepository.findById(orderItems.get(i).getProductDetailId());
+            if(productDetailOptional.isPresent()){
+                ProductDetail productDetail = productDetailOptional.get();
+                long totalSold = orderItemRepository.sumByProductDetailId(productDetail.getId());
+                if(productDetail.getStock() - totalSold < orderItems.get(i).getQuantity()) {
+                    throw new RuntimeException("Sản phẩm '" + productDetail.getProduct().getName() + " - " + productDetail.getName() +  "' trong kho hiện không còn đủ");
+                }
+                OrderItem orderItem = new OrderItem();
+                orderItem.setProductId(productDetail.getProduct().getId());
+                orderItem.setProductName(productDetail.getProduct().getName());
+                orderItem.setDescription(productDetail.getProduct().getDescription());
+                orderItem.setProductDetailId(productDetail.getId());
+                orderItem.setProductDetailName(productDetail.getName());
+                orderItem.setPrice(productDetail.getPrice());
+                orderItem.setDiscount(productDetail.getDiscount());
+                orderItem.setImageUrl(productDetail.getImageUrl());
+                orderItem.setQuantity(orderItems.get(i).getQuantity());
+                orderItem.setOrder(orderProduct);
+                data.add(orderItem);
+                orderItemRepository.save(orderItem);
+                orderItemRepository.flush();
+            }else{
+                throw new RuntimeException("Mặt hàng số " + (i + 1) + " không tồn tại");
+            }
+        }
+        orderProduct.setOrderItems(data);
         if(orderProduct.getPaymentType() == 1) {
-            orderRepository.save(orderProduct);
             return null;
         }
-        orderProduct.setStatus(OrderStatus.AWAITING_PAYMENT);
-        orderRepository.save(orderProduct);
         return this.payment(orderProduct, request);
     }
 
@@ -195,7 +215,11 @@ public class OrderServiceImpl implements OrderService {
     @SneakyThrows
     public String payment(OrderProduct orderProduct, HttpServletRequest req) {
         String orderType = "other";
-        Long amount = orderProduct.getQuantity() * ( orderProduct.getPrice() - orderProduct.getPrice() * orderProduct.getDiscount() / 100)  * 100;
+        long totalAmount = 0L;
+        for(OrderItem item: orderProduct.getOrderItems()) {
+            totalAmount = totalAmount + item.getQuantity() * ( item.getPrice() - item.getPrice() * item.getDiscount() / 100)  * 100;
+        }
+
         String vnp_TxnRef = orderProduct.getId() + LocalDateTime.now();// Khi cần thanh toán lại thì cần tạo mã thanh toán mới
         this.redisRepository.set(vnp_TxnRef, orderProduct.getId()); // Lưu lại giá trị thực tế của OrderId
         String vnp_IpAddr = VNPayConfig.getIpAddress(req);
@@ -204,7 +228,7 @@ public class OrderServiceImpl implements OrderService {
         vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
         vnp_Params.put("vnp_Command", VNPayConfig.vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_Amount", String.valueOf(totalAmount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toán đơn hàng " + orderProduct.getId());
