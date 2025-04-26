@@ -8,9 +8,7 @@ import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateCartRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.CartService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,4 +21,13 @@ public class CartController {
         cartService.add(user, request);
         return ApiResponse.success("Đã thêm sản phẩm vào giỏ hàng");
     }
+
+    @DeleteMapping("/cart/{cartId}")
+    public ApiResponse deleteCart(@PathVariable String cartId, @CurrentUser User user) throws BeautyBoxException {
+        cartService.delete(cartId, user);
+        return ApiResponse.success("Xoá thành công");
+    }
+
+
+
 }

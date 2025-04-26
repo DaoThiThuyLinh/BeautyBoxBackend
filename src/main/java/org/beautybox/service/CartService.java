@@ -8,4 +8,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface CartService {
     void add(User user, CreateCartRequest request) throws BeautyBoxException;
+    void delete(String cartId, User user) throws BeautyBoxException;
 }

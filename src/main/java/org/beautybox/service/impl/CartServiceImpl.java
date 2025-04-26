@@ -33,4 +33,15 @@ public class CartServiceImpl implements CartService {
         cart.setQuantity(request.getQuantity());
         cartRepository.save(cart);
     }
+
+    @Override
+    public void delete(String cartId, User user) throws BeautyBoxException {
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_CART_NOT_EXISTED)
+        );
+        if(!cart.getUser().getId().equals(user.getId())){
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
+        }
+        cartRepository.delete(cart);
+    }
 }
