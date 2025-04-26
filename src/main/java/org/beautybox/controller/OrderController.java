@@ -34,9 +34,10 @@ public class OrderController {
         return ApiResponse.success("Sửa thông tin đơn hàng thành công");
     }
 
-    @GetMapping("/order/{userId}")
-    public ApiResponse getOrder(@PathVariable String userId) {
-        return ApiResponse.success("Thành công", orderService.get(userId));
+    @GetMapping("/order")
+    public ApiResponse getOrder(@RequestParam String userId,
+                                @RequestParam(required = false, defaultValue = "0") int status) {
+        return ApiResponse.success("Thành công", orderService.get(userId, status));
     }
 
     @DeleteMapping("/order")

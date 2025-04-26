@@ -278,8 +278,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> get(String userId) {
-        List<OrderProduct> orders = orderRepository.findByUserId(userId);
+    public List<OrderResponse> get(String userId, int status) {
+        List<OrderProduct> orders = orderRepository.findByUserIdAndStatus(userId, status);
         return orders.stream().map(orderMapper::toResponse).toList();
     }
 }
