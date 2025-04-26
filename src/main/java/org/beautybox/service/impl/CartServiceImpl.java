@@ -61,14 +61,15 @@ public class CartServiceImpl implements CartService {
             cartResponse.setQuantity(item.getQuantity());
             cartResponse.setProductDetail(productMapper.toProductDetailResponse(item.getProductDetail()));
             cartResponse.setIsEnabled(true);
-            if(!item.getProductDetail().getIsEnabled()){
-                cartResponse.setIsEnabled(false);
-                cartResponse.setMessageStatus("Sản phẩm đã bị xoá");
-            }
+            cartResponse.setProductId(item.getProductDetail().getProduct().getId());
             long totalSold = orderItemRepository.sumByProductDetailId(item.getProductDetail().getId());
             if(item.getProductDetail().getStock() - totalSold - item.getQuantity() <= 0){
                 cartResponse.setIsEnabled(false);
                 cartResponse.setMessageStatus("Số lượng sản phẩm trong kho không đủ");
+            }
+            if(!item.getProductDetail().getIsEnabled()){
+                cartResponse.setIsEnabled(false);
+                cartResponse.setMessageStatus("Sản phẩm đã bị xoá");
             }
             return cartResponse;
         }).toList();

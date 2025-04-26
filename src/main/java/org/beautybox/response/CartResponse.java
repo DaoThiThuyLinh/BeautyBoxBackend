@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartResponse {
     String id;
+    String productId;
     ProductDetailResponse productDetail;
     int quantity;
     String messageStatus;

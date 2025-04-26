@@ -156,6 +156,9 @@ public class ProductServiceImpl implements ProductService {
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
         product.setIsEnabled(false);
+        for(var detail : product.getProductDetails()){
+            detail.setIsEnabled(false);
+        }
         productRepository.save(product);
     }
 
