@@ -6,17 +6,24 @@ import org.beautybox.entity.ProductDetail;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.exception.ErrorDetail;
+import org.beautybox.mapper.ProductMapper;
 import org.beautybox.repository.CartRepository;
+import org.beautybox.repository.OrderItemRepository;
 import org.beautybox.repository.ProductDetailRepository;
 import org.beautybox.request.CreateCartRequest;
+import org.beautybox.response.CartResponse;
 import org.beautybox.service.CartService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
     final ProductDetailRepository productDetailRepository;
+    final OrderItemRepository orderItemRepository;
+    final ProductMapper productMapper;
     final CartRepository cartRepository;
 
     @Override
@@ -43,5 +50,27 @@ public class CartServiceImpl implements CartService {
             throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
         }
         cartRepository.delete(cart);
+    }
+
+    @Override
+    public List<CartResponse> getCart(User user) {
+        return cartRepository.findByUserId(user.getId()).stream().map( item -> {
+            CartResponse cartResponse = new CartResponse();
+            cartResponse.setId(item.getId());
+            cartResponse.setCreatedAt(item.getCreatedAt());
+            cartResponse.setQuantity(item.getQuantity());
+            cartResponse.setProductDetail(productMapper.toProductDetailResponse(item.getProductDetail()));
+            cartResponse.setIsEnabled(true);
+            if(!item.getProductDetail().getIsEnabled()){
+                cartResponse.setIsEnabled(false);
+                cartResponse.setMessageStatus("Sản phẩm đã bị xoá");
+            }
+            long totalSold = orderItemRepository.sumByProductDetailId(item.getProductDetail().getId());
+            if(item.getProductDetail().getStock() - totalSold - item.getQuantity() <= 0){
+                cartResponse.setIsEnabled(false);
+                cartResponse.setMessageStatus("Số lượng sản phẩm trong kho không đủ");
+            }
+            return cartResponse;
+        }).toList();
     }
 }

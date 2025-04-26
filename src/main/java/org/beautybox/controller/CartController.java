@@ -28,6 +28,8 @@ public class CartController {
         return ApiResponse.success("Xoá thành công");
     }
 
-
-
+    @GetMapping("/cart")
+    public ApiResponse getCart(@CurrentUser User user){
+        return ApiResponse.success("Danh sách giỏ hàng", cartService.getCart(user));
+    }
 }
