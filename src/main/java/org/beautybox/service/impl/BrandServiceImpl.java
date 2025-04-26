@@ -9,10 +9,13 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.BrandMapper;
 import org.beautybox.repository.BrandRepository;
 import org.beautybox.request.CreateBrandRequest;
+import org.beautybox.request.UpdateBrandRequest;
 import org.beautybox.response.BrandResponse;
 import org.beautybox.service.BrandService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +42,30 @@ public class BrandServiceImpl implements BrandService {
             var response = cloudinary.uploader().upload(request.getImage().getBytes(), Map.of());
             brand.setImgUrl(response.get("url") + "");
         }
+        brandRepository.save(brand);
+    }
+
+    @Override
+    public void updateBrand(UpdateBrandRequest updateRequest) throws BeautyBoxException, IOException {
+        Brand brand = brandRepository.findById(updateRequest.getId()).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_BRAND_NOT_EXISTED)
+        );
+
+        if (!brand.getName().equals(updateRequest.getName())) {
+            if (brandRepository.existsByName(updateRequest.getName())) {
+                throw new BeautyBoxException(ErrorDetail.ERR_BRAND_EXISTED);
+            }
+            brand.setName(updateRequest.getName());
+        }
+        if(brand.getDescription() != null && !brand.getDescription().isEmpty() && !brand.getDescription().equals(updateRequest.getDescription())) {
+            brand.setDescription(updateRequest.getDescription());
+        }
+
+        if (updateRequest.getImage() != null && !updateRequest.getImage().isEmpty()) {
+            var response = cloudinary.uploader().upload(updateRequest.getImage().getBytes(), Map.of());
+            brand.setImgUrl(response.get("url") + "");
+        }
+
         brandRepository.save(brand);
     }
 
