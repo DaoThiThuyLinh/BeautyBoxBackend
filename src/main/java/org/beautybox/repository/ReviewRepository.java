@@ -14,6 +14,12 @@ public interface ReviewRepository extends JpaRepository<Review, String> {
             "WHERE r.orderItem.id = :orderItemId ")
     boolean existsByOrderItemId(String orderItemId);
 
+    @Query("SELECT count(*) " +
+            "FROM Review r " +
+            "WHERE r.orderItem.productId = :productId " +
+            "AND r.rating = :rating ")
+    long countReviewByRatingAndProductId(int rating, String productId);
+
     @Query("FROM Review r " +
             "WHERE r.orderItem.productId = :productId ")
     List<Review> findByProductId(String productId);

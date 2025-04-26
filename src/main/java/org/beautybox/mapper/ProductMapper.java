@@ -71,10 +71,19 @@ public abstract class ProductMapper {
         List<ReviewResponse> reviewResponses = reviewRepository.findByProductId(productId).stream().map(t -> {
             ReviewResponse review = new ReviewResponse();
             review.setId(t.getId());
+            review.setCreatedDate(t.getCreatedAt());
+            review.setUserName(t.getUser().getName());
             review.setRating(t.getRating());
             review.setComment(t.getComment());
             return review;
         }).toList();
+        Map<Integer, Long> details = new HashMap<>();
+        details.put(1, reviewRepository.countReviewByRatingAndProductId(1, productId));
+        details.put(2, reviewRepository.countReviewByRatingAndProductId(2, productId));
+        details.put(3, reviewRepository.countReviewByRatingAndProductId(3, productId));
+        details.put(4, reviewRepository.countReviewByRatingAndProductId(4, productId));
+        details.put(5, reviewRepository.countReviewByRatingAndProductId(5, productId));
+        response.put("details", details);
         response.put("reviews", reviewResponses);
         response.put("totalNumRating", reviewResponses.size());
 
