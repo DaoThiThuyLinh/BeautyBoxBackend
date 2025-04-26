@@ -6,6 +6,7 @@ import org.beautybox.anotation.CurrentUser;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateCartRequest;
+import org.beautybox.request.UpdateCartRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.CartService;
 import org.springframework.web.bind.annotation.*;
@@ -31,5 +32,11 @@ public class CartController {
     @GetMapping("/cart")
     public ApiResponse getCart(@CurrentUser User user){
         return ApiResponse.success("Danh sách giỏ hàng", cartService.getCart(user));
+    }
+
+    @PutMapping("/cart")
+    public ApiResponse updateCart(@RequestBody @Valid UpdateCartRequest updateRequest, @CurrentUser User user) throws BeautyBoxException{
+        cartService.updateCart(updateRequest, user);
+        return ApiResponse.success("Cập nhập thành công");
     }
 }

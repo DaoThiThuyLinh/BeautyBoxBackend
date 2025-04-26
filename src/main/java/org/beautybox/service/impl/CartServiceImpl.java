@@ -11,6 +11,7 @@ import org.beautybox.repository.CartRepository;
 import org.beautybox.repository.OrderItemRepository;
 import org.beautybox.repository.ProductDetailRepository;
 import org.beautybox.request.CreateCartRequest;
+import org.beautybox.request.UpdateCartRequest;
 import org.beautybox.response.CartResponse;
 import org.beautybox.service.CartService;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,18 @@ public class CartServiceImpl implements CartService {
             throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
         }
         cartRepository.delete(cart);
+    }
+
+    @Override
+    public void updateCart(UpdateCartRequest updateRequest, User user) throws BeautyBoxException {
+        Cart cart = cartRepository.findById(updateRequest.getId()).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_CART_NOT_EXISTED)
+        );
+        if(!cart.getUser().getId().equals(user.getId())){
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
+        }
+        cart.setQuantity(updateRequest.getQuantity());
+        cartRepository.save(cart);
     }
 
     @Override
