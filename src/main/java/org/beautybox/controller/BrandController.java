@@ -28,7 +28,9 @@ public class BrandController {
         return ApiResponse.success("Create success");
     }
 
-    @Operation(summary = "Cập nhập brand", description = "Khi bỏ trống Image sẽ vẫn lấy lại ảnh cũ")
+    @Operation(summary = "Cập nhập brand", description = "Khi bỏ trống Image sẽ vẫn lấy lại ảnh cũ", security = {
+            @SecurityRequirement(name = "bearerAuth")
+    })
     @PutMapping("/admin-api/brand")
     public ApiResponse updateCategory(@ModelAttribute @Valid UpdateBrandRequest updateRequest) throws BeautyBoxException, IOException {
         brandService.updateBrand(updateRequest);

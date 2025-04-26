@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.CreateCategoryRequest;
+import org.beautybox.request.UpdateCategoryRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,15 @@ public class CategoryController {
     public ApiResponse createCategory(@RequestBody @Valid CreateCategoryRequest request) {
         categoryService.addCategory(request);
         return ApiResponse.success("Create success");
+    }
+
+    @PutMapping("/admin-api/category")
+    @Operation(summary = "Sửa thể loại", security = {
+            @SecurityRequirement(name = "bearerAuth")
+    })
+    public ApiResponse updateCategory(@RequestBody @Valid UpdateCategoryRequest updateRequest) throws BeautyBoxException {
+        categoryService.updateCategory(updateRequest);
+        return ApiResponse.success("Update success");
     }
 
     @DeleteMapping("/admin-api/category/{categoryId}")

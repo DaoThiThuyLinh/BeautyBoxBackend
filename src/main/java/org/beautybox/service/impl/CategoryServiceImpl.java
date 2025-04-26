@@ -8,6 +8,7 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.CategoryMapper;
 import org.beautybox.repository.CategoryRepository;
 import org.beautybox.request.CreateCategoryRequest;
+import org.beautybox.request.UpdateCategoryRequest;
 import org.beautybox.response.CategoryResponse;
 import org.beautybox.service.CategoryService;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,15 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BeautyBoxException(ErrorDetail.ERR_CATEGORY_EXISTED);
         }
         Category category = new Category();
+        category.setName(request.getName());
+        categoryRepository.save(category);
+    }
+
+    @Override
+    public void updateCategory(UpdateCategoryRequest request) throws BeautyBoxException {
+        Category category = categoryRepository.findById(request.getId()).orElseThrow(
+                () -> new BeautyBoxException(ErrorDetail.ERR_CATEGORY_NOT_EXISTED)
+        );
         category.setName(request.getName());
         categoryRepository.save(category);
     }
