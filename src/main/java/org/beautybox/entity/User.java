@@ -1,6 +1,7 @@
 package org.beautybox.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.Order;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
@@ -37,8 +38,11 @@ public class User extends BaseEntity implements UserDetails{
             @JoinColumn(name = "role_id")
     Role role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<DefaultAddress> defaultAddress;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<OrderProduct> orders;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

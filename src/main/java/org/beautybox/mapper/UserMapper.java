@@ -3,6 +3,7 @@ package org.beautybox.mapper;
 import org.beautybox.entity.User;
 import org.beautybox.repository.RoleRepository;
 import org.beautybox.request.UserRegisterRequest;
+import org.beautybox.response.UserDetailResponse;
 import org.beautybox.response.UserResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,4 +20,7 @@ public abstract class UserMapper {
 
     @Mapping(target = "roleName", source = "role.name")
     public abstract UserResponse toResponse(User user);
+
+    @Mapping(target = "roleName", source = "role.name")
+    public abstract UserDetailResponse toDetailResponse(User user);
 }

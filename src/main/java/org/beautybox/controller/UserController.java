@@ -1,6 +1,7 @@
 package org.beautybox.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -72,5 +73,21 @@ public class UserController {
                 .code(200)
                 .data(userResponse)
                 .build();
+    }
+
+    @Operation(summary = "Lấy ra danh sách user", parameters = {
+            @Parameter(name = "orderBy", description = "<h4>Truyền vào giá trị từ 1->4</h4>" +
+                    "{1}. Sắp xếp theo thời gian tạo (Mặc định) </br>" +
+                    "{2}. Sắp xếp theo số lượng đơn hàng </br>" +
+                    "{3}. Sắp xếp theo tên </br>" +
+                    "{4}. Sắp xếp theo tổng tiền mua hàng </br>")
+    })
+    @GetMapping("/admin-api/user")
+    public ApiResponse getAllUser(@RequestParam(required = false, defaultValue = "") String value,
+                                  @RequestParam(required = false, defaultValue = "1") int pageIndex,
+                                  @RequestParam(required = false, defaultValue = "40") int pageSize,
+                                  @RequestParam(required = false, defaultValue = "1") String orderBy,
+                                  @RequestParam(required = false, defaultValue = "asc") String sortDirection){
+        return ApiResponse.success("Danh sách người dùng", userService.getAllUser(value, pageIndex, pageSize, orderBy, sortDirection));
     }
 }
