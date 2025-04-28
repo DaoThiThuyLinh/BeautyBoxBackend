@@ -8,7 +8,11 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.beautybox.anotation.CurrentUser;
+import org.beautybox.entity.User;
+import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.LoginRequest;
+import org.beautybox.request.UpdateUserRequest;
 import org.beautybox.request.UserRegisterRequest;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.response.TokenResponse;
@@ -74,6 +78,19 @@ public class UserController {
                 .data(userResponse)
                 .build();
     }
+
+    @PutMapping("/user")
+    public ApiResponse update(@RequestBody @Valid UpdateUserRequest updateRequest, @CurrentUser User user) throws BeautyBoxException {
+        userService.update(updateRequest, user);
+        return ApiResponse.success("Cập nhập thành công");
+    }
+
+    @DeleteMapping("/admin-api/user/{userId}")
+    public ApiResponse delete(@PathVariable String userId) throws BeautyBoxException {
+        userService.delete(userId);
+        return ApiResponse.success("Xoá thành công");
+    }
+
 
     @Operation(summary = "Lấy ra danh sách user", parameters = {
             @Parameter(name = "orderBy", description = "<h4>Truyền vào giá trị từ 1->4</h4>" +

@@ -16,6 +16,7 @@ import org.beautybox.exception.ErrorDetail;
 import org.beautybox.mapper.UserMapper;
 import org.beautybox.repository.RoleRepository;
 import org.beautybox.repository.UserRepository;
+import org.beautybox.request.UpdateUserRequest;
 import org.beautybox.request.UserRegisterRequest;
 import org.beautybox.response.PageResponse;
 import org.beautybox.response.UserDetailResponse;
@@ -58,6 +59,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(roleRepository.findByName("ROLE_USER"));
         userRepository.save(user);
+    }
+
+    @Override
+    public void update(UpdateUserRequest updateUserRequest, User user) throws BeautyBoxException {
+        if(!user.getId().equals(updateUserRequest.getId())){
+            throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
+        }
+        user.setName(updateUserRequest.getName());
+        user.setGender(updateUserRequest.getGender());
+        user.setEmail(updateUserRequest.getEmail());
+        user.setPhone(updateUserRequest.getPhone());
+        userRepository.save(user);
+    }
+
+    @Override
+    public void delete(String userId) throws BeautyBoxException {
+        if(!userRepository.existsById(userId)){
+            throw new BeautyBoxException(ErrorDetail.ERR_USER_NOT_EXISTED);
+        }
+        userRepository.deleteById(userId);
     }
 
     @Override
