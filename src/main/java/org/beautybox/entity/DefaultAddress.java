@@ -14,16 +14,22 @@ public class DefaultAddress extends BaseEntity{
     @Id
             @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    @Column(updatable = false, nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
+    String name;
+    @Column(nullable = false, length = 50)
     String commune;
-    @Column(updatable = false, nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     String district;
-    @Column(updatable = false, nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     String province;
-    @Column(updatable = false, nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     String detailAddress;
-    @Column(updatable = false, nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     String recipientName;
-    @Column(updatable = false, nullable = false, length = 12)
+    @Column(nullable = false, length = 12)
     String recipientPhoneNumber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+            @JoinColumn(nullable = false, updatable = false)
+    User user;
 }

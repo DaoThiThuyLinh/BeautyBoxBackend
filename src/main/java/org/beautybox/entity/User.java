@@ -37,6 +37,9 @@ public class User extends BaseEntity implements UserDetails{
             @JoinColumn(name = "role_id")
     Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    List<DefaultAddress> defaultAddress;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
