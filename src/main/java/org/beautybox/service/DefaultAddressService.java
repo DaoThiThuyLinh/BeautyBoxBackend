@@ -13,6 +13,7 @@ import java.util.List;
 public interface DefaultAddressService {
     void add(CreateDefaultAddressRequest request, User user);
     void update(UpdateDefaultAddressRequest updateRequest, User user) throws BeautyBoxException;
+    void changeDefault(String id, User user) throws BeautyBoxException;
     void delete(String id, User user) throws BeautyBoxException;
     List<DefaultAddressResponse> getAllByUser(User user);
 }

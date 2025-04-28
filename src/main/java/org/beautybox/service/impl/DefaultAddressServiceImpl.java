@@ -26,6 +26,14 @@ public class DefaultAddressServiceImpl implements DefaultAddressService {
     public void add(CreateDefaultAddressRequest request, User user) {
         DefaultAddress defaultAddress = defaultAddressMapper.toDefaultAddress(request);
         defaultAddress.setUser(user);
+        defaultAddress.setDefault(request.getIsDefault());
+        if(defaultAddress.isDefault()){
+            List<DefaultAddress> defaultAddresses = defaultAddressRepository.getByUser(user.getId());
+            for(DefaultAddress item : defaultAddresses) {
+                item.setDefault(false);
+                defaultAddressRepository.save(item);
+            }
+        }
         defaultAddressRepository.save(defaultAddress);
     }
 
@@ -42,12 +50,32 @@ public class DefaultAddressServiceImpl implements DefaultAddressService {
     }
 
     @Override
+    public void changeDefault(String id, User user) throws BeautyBoxException {
+        DefaultAddress defaultAddress = defaultAddressRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Địa chỉ không tồn tại")
+        );
+        List<DefaultAddress> defaultAddresses = defaultAddressRepository.getByUser(user.getId());
+        for(DefaultAddress item : defaultAddresses) {
+            item.setDefault(false);
+            defaultAddressRepository.save(item);
+        }
+        defaultAddress.setDefault(true);
+        defaultAddressRepository.save(defaultAddress);
+    }
+
+    @Override
     public void delete(String id, User user) throws BeautyBoxException {
         DefaultAddress defaultAddress = defaultAddressRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Địa chỉ không tồn tại")
         );
         if(!defaultAddress.getUser().getId().equals(user.getId())) {
             throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
+        }
+        List<DefaultAddress> defaultAddresses = defaultAddressRepository.getByUser(user.getId());
+        for(DefaultAddress item : defaultAddresses) {
+            item.setDefault(true);
+            defaultAddressRepository.save(item);
+            break;
         }
         defaultAddressRepository.delete(defaultAddress);
     }

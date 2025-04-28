@@ -28,6 +28,7 @@ public class DefaultAddress extends BaseEntity{
     String recipientName;
     @Column(nullable = false, length = 12)
     String recipientPhoneNumber;
+    boolean isDefault;
 
     @ManyToOne(fetch = FetchType.LAZY)
             @JoinColumn(nullable = false, updatable = false)

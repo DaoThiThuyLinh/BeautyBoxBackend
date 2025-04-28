@@ -17,4 +17,6 @@ public class DefaultAddressResponse {
     String detailAddress;
     String recipientName;
     String recipientPhoneNumber;
+    boolean isDefault;
+
 }

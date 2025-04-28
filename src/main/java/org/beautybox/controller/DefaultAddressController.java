@@ -20,12 +20,12 @@ public class DefaultAddressController {
     @PostMapping("/address")
     public ApiResponse add(@RequestBody @Valid CreateDefaultAddressRequest request, @CurrentUser User user) {
         defaultAddressService.add(request, user);
-        return ApiResponse.success("Địa chỉ mặc định đã được thêm");
+        return ApiResponse.success("Đã thêm địa chỉ mới");
     }
 
-    @PutMapping("/address")
-    public ApiResponse update(@RequestBody @Valid UpdateDefaultAddressRequest request, @CurrentUser User user) throws BeautyBoxException {
-        defaultAddressService.update(request, user);
+    @PutMapping("/address/change-default/{addressId}")
+    public ApiResponse changeDefault(@PathVariable String addressId, @CurrentUser User user) throws BeautyBoxException {
+        defaultAddressService.changeDefault(addressId, user);
         return ApiResponse.success("Sửa thành công");
     }
 

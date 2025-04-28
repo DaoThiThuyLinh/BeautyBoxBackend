@@ -1,6 +1,7 @@
 package org.beautybox.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -25,4 +26,6 @@ public class CreateDefaultAddressRequest {
     @NotBlank(message = "Không được bỏ trống số điện thoại người nhận hàng")
             @Pattern(regexp = "^(0|\\+84)(3[2-9]|5[2689]|7[0-9]|8[1-9]|9[0-9])[0-9]{7}$", message = "Số điện thoại không đúng định dạng")
     String recipientPhoneNumber;
+    @NotNull(message = "Cần chỉ định địa chỉ này có phải mặc định không ")
+    Boolean isDefault;
 }
