@@ -1,6 +1,5 @@
 package org.beautybox.controller;
 
-import com.cloudinary.Api;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.beautybox.anotation.CurrentUser;
@@ -34,5 +33,10 @@ public class DefaultAddressController {
     public ApiResponse delete(@PathVariable String id, @CurrentUser User user) throws BeautyBoxException {
         defaultAddressService.delete(id, user);
         return ApiResponse.success("Xoá thành công");
+    }
+
+    @GetMapping("/address")
+    public ApiResponse get(@CurrentUser User user) {
+        return ApiResponse.success("Danh sách địa chỉ của bạn", defaultAddressService.getAllByUser(user));
     }
 }

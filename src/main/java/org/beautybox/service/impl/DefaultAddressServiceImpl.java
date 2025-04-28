@@ -9,8 +9,11 @@ import org.beautybox.mapper.DefaultAddressMapper;
 import org.beautybox.repository.DefaultAddressRepository;
 import org.beautybox.request.CreateDefaultAddressRequest;
 import org.beautybox.request.UpdateDefaultAddressRequest;
+import org.beautybox.response.DefaultAddressResponse;
 import org.beautybox.service.DefaultAddressService;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -47,5 +50,10 @@ public class DefaultAddressServiceImpl implements DefaultAddressService {
             throw new BeautyBoxException(ErrorDetail.ERR_ORDER_USER_NOT_CORRECT);
         }
         defaultAddressRepository.delete(defaultAddress);
+    }
+
+    @Override
+    public List<DefaultAddressResponse> getAllByUser(User user) {
+        return defaultAddressRepository.getByUser(user.getId()).stream().map(defaultAddressMapper::toResponse).toList();
     }
 }
