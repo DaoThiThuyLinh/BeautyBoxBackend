@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class CartResponse {
     String id;
     String productId;
+    String productName;
     ProductDetailResponse productDetail;
     int quantity;
     String messageStatus;

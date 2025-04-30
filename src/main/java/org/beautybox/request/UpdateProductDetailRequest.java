@@ -22,7 +22,4 @@ public class UpdateProductDetailRequest {
     @Min(value = 0, message = "Discount must be greater than 0")
     Integer discount;
     String description;
-    @NotNull(message = "Stock filed is not null")
-    @Min(value = 1, message = "Stock must be greater than 1")
-    Integer stock;
 }

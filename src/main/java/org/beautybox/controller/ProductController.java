@@ -54,8 +54,7 @@ public class ProductController {
     })
     @PostMapping("/admin-api/product-detail")
     public ApiResponse createProductDetail(@ModelAttribute @Valid CreateProductDetailRequest request) throws BeautyBoxException {
-        productService.addProductDetail(request);
-        return ApiResponse.success("Created product detail success");
+        return ApiResponse.success("Created product detail success", productService.addProductDetail(request));
     }
 
     @Operation(summary = "Cập nhập thông tin sản phẩm con")

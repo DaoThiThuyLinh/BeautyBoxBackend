@@ -15,7 +15,7 @@ public interface ProductService {
     void add(CreateProductRequest productRequest) throws BeautyBoxException;
     int addNewImage(String productId, List<MultipartFile> images) throws BeautyBoxException;
     void updateProduct(UpdateProductRequest productRequest) throws BeautyBoxException;
-    void addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException;
+    String addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException;
     void updateProductDetail(UpdateProductDetailRequest updateRequest) throws BeautyBoxException;
     void deleteProductDetail(String id) throws BeautyBoxException;
     void deleteProduct(String productId) throws BeautyBoxException;

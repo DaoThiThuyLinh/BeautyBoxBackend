@@ -117,7 +117,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException {
+    public String addProductDetail(CreateProductDetailRequest productDetailRequest) throws BeautyBoxException {
         Product product = productRepository.findById(productDetailRequest.getProductId()).orElseThrow(
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
@@ -126,6 +126,7 @@ public class ProductServiceImpl implements ProductService {
         productDetail.setImageUrl(imageUrl);
         productDetail.setProduct(product);
         productDetailRepository.save(productDetail);
+        return productDetail.getId();
     }
 
     @Override
@@ -134,7 +135,6 @@ public class ProductServiceImpl implements ProductService {
                 () -> new BeautyBoxException(ErrorDetail.ERR_PRODUCT_NOT_EXISTED)
         );
         productDetail.setName(updateRequest.getName());
-        productDetail.setStock(updateRequest.getStock());
         productDetail.setDiscount(updateRequest.getDiscount());
         productDetail.setPrice(updateRequest.getPrice());
         productDetail.setDescription(updateRequest.getDescription());

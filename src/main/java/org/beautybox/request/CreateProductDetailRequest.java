@@ -20,9 +20,6 @@ public class CreateProductDetailRequest {
     Long price;
     @Min(value = 0, message = "Discount must be greater than 0")
     Integer discount;
-    @NotNull(message = "Stock filed is not null")
-            @Min(value = 1, message = "Stock must be greater than 1")
-    Integer stock;
     String description;
     @NotBlank(message = "Product field is not blank")
     String productId;

@@ -74,6 +74,7 @@ public class CartServiceImpl implements CartService {
             cartResponse.setQuantity(item.getQuantity());
             cartResponse.setProductDetail(productMapper.toProductDetailResponse(item.getProductDetail()));
             cartResponse.setIsEnabled(true);
+            cartResponse.setProductName(item.getProductDetail().getProduct().getName());
             cartResponse.setProductId(item.getProductDetail().getProduct().getId());
             long totalSold = orderItemRepository.sumByProductDetailId(item.getProductDetail().getId());
             if(item.getProductDetail().getStock() - totalSold - item.getQuantity() <= 0){

@@ -8,6 +8,8 @@ import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -19,7 +21,7 @@ public class ProductDetail extends BaseEntity {
         @GeneratedValue(strategy = GenerationType.UUID)
             @Column(length = 36)
     String id;
-    @Column(columnDefinition = "varchar(100)", unique = true, nullable = false)
+    @Column(columnDefinition = "varchar(100)", nullable = false)
             @FullTextField(analyzer = "vietnameseAnalyzer")
     String name;
     @Min(value = 0, message = "Price must be greater than 0")
@@ -43,4 +45,6 @@ public class ProductDetail extends BaseEntity {
     @ManyToOne
             @JoinColumn
     Product product;
+    @OneToMany(mappedBy = "productDetail", cascade = CascadeType.ALL)
+    List<Warehouse> warehouses;
 }

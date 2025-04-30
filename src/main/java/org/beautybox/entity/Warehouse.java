@@ -1,7 +1,6 @@
 package org.beautybox.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,10 +17,15 @@ public class Warehouse extends BaseEntity {
         @GeneratedValue(strategy = GenerationType.UUID)
             @Column(length = 36)
     String id;
+    @Column(nullable = false)
     LocalDate entryDate;
-    @Min(value = 0, message = "Entry price must be greater than 0")
+    @Column(nullable = false)
     Long entryPrice;
     @Column(columnDefinition = "varchar(12)")
     String entryPhoneNumber;
     String entryPlace;
+    @Column(nullable = false)
+    int entryQuantity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    ProductDetail productDetail;
 }
