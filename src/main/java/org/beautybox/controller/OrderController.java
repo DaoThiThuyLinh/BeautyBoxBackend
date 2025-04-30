@@ -1,5 +1,7 @@
 package org.beautybox.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +36,16 @@ public class OrderController {
         return ApiResponse.success("Sửa thông tin đơn hàng thành công");
     }
 
+    @Operation(summary = "Lấy ra danh sách order", parameters = {
+            @Parameter(name = "s", description = "ProductId hoặc OrderId")
+    })
     @GetMapping("/order")
-    public ApiResponse getOrder(@RequestParam String userId,
+    public ApiResponse getOrder(@RequestParam(required = false, defaultValue = "") String s,
+                                @RequestParam(required = false, defaultValue = "") String userId,
+                                @RequestParam(required = false, defaultValue = "1") int pageIndex,
+                                @RequestParam(required = false, defaultValue = "40") int pageSize,
                                 @RequestParam(required = false, defaultValue = "0") int status) {
-        return ApiResponse.success("Thành công", orderService.get(userId, status));
+        return ApiResponse.success("Thành công", orderService.get(s, userId, pageIndex, pageSize, status));
     }
 
     @DeleteMapping("/order")

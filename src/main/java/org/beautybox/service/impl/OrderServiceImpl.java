@@ -20,8 +20,13 @@ import org.beautybox.repository.RedisRepository;
 import org.beautybox.request.OrderRequest;
 import org.beautybox.request.UpdateOrderRequest;
 import org.beautybox.response.OrderResponse;
+import org.beautybox.response.PageResponse;
 import org.beautybox.service.OrderService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -278,8 +283,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> get(String userId, int status) {
-        List<OrderProduct> orders = orderRepository.findByUserIdAndStatus(userId, status);
-        return orders.stream().map(orderMapper::toResponse).toList();
+    public PageResponse<OrderResponse> get(String s, String userId, int pageIndex, int pageSize, int status) {
+        Pageable pageable = PageRequest.of(pageIndex - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<OrderProduct> ordersPage = orderRepository.getOrders(s, userId, status, pageable);
+        List<OrderResponse> contents = ordersPage.getContent().stream().map(orderMapper::toResponse).toList();
+        return PageResponse.<OrderResponse>builder()
+                .pageIndex(pageIndex)
+                .pageSize(pageSize)
+                .totalPages(ordersPage.getTotalPages())
+                .totalElements(ordersPage.getTotalElements())
+                .content(contents)
+                .sortBy(new PageResponse.SortBy("createdAt", "desc"))
+                .build();
     }
 }

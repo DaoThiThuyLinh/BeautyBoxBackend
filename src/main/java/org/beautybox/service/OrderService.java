@@ -6,10 +6,10 @@ import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.request.OrderRequest;
 import org.beautybox.request.UpdateOrderRequest;
 import org.beautybox.response.OrderResponse;
+import org.beautybox.response.PageResponse;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,5 +19,5 @@ public interface OrderService {
     void update(UpdateOrderRequest updateRequest) throws BeautyBoxException;
     String payAgain(String orderId, HttpServletRequest request, User user) throws BeautyBoxException;
     String executePaymentResult(Map<String, String> params, HttpServletRequest request) throws BeautyBoxException, UnsupportedEncodingException;
-    List<OrderResponse> get(String userId, int status);
+    PageResponse<OrderResponse> get(String s, String userId, int pageIndex, int pageSize, int status);
 }
