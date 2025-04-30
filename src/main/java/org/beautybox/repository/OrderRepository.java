@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Repository
 public interface OrderRepository extends JpaRepository<OrderProduct, String> {
 
@@ -19,4 +22,9 @@ public interface OrderRepository extends JpaRepository<OrderProduct, String> {
             "AND ( 0 = :status or op.status = :status ) " +
             "AND ( :s = '' or op.id = :s or  odi.productId = :s ) ")
     Page<OrderProduct> getOrders(String s, String userId, int status, Pageable pageable);
+
+    @Query("SELECT count(*) " +
+            "FROM OrderProduct op " +
+            "WHERE op.createdAt <= :end AND op.createdAt >= :start ")
+    int countByTime(LocalDateTime start, LocalDateTime end);
 }

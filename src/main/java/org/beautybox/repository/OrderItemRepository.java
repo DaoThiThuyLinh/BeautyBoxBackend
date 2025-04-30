@@ -19,4 +19,10 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
             "WHERE oi.productDetailId = :productDetailId " +
             "AND oi.order.status not in (5, 6) ")
     long sumByProductDetailId(String productDetailId);
+
+
+    @Query("SELECT COALESCE(sum( (oi.price - oi.price * oi.discount/ 100) * oi.quantity), 0) " +
+            "FROM OrderItem oi " +
+            "WHERE oi.order.status not in (5, 6) ")
+    long sumRevenue();
 }
