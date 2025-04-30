@@ -26,11 +26,11 @@ public class DefaultAddressServiceImpl implements DefaultAddressService {
     public void add(CreateDefaultAddressRequest request, User user) {
         DefaultAddress defaultAddress = defaultAddressMapper.toDefaultAddress(request);
         defaultAddress.setUser(user);
-        defaultAddress.setDefault(request.getIsDefault());
-        if(defaultAddress.isDefault()){
+        defaultAddress.setIsDefault(request.getIsDefault());
+        if(defaultAddress.getIsDefault()){
             List<DefaultAddress> defaultAddresses = defaultAddressRepository.getByUser(user.getId());
             for(DefaultAddress item : defaultAddresses) {
-                item.setDefault(false);
+                item.setIsDefault(false);
                 defaultAddressRepository.save(item);
             }
         }
@@ -56,10 +56,10 @@ public class DefaultAddressServiceImpl implements DefaultAddressService {
         );
         List<DefaultAddress> defaultAddresses = defaultAddressRepository.getByUser(user.getId());
         for(DefaultAddress item : defaultAddresses) {
-            item.setDefault(false);
+            item.setIsDefault(false);
             defaultAddressRepository.save(item);
         }
-        defaultAddress.setDefault(true);
+        defaultAddress.setIsDefault(true);
         defaultAddressRepository.save(defaultAddress);
     }
 
@@ -73,7 +73,7 @@ public class DefaultAddressServiceImpl implements DefaultAddressService {
         }
         List<DefaultAddress> defaultAddresses = defaultAddressRepository.getByUser(user.getId());
         for(DefaultAddress item : defaultAddresses) {
-            item.setDefault(true);
+            item.setIsDefault(true);
             defaultAddressRepository.save(item);
             break;
         }
