@@ -11,4 +11,5 @@ import java.util.Map;
 public interface ReportService {
     Map<String, Object> getSummary();
     List<ReportTemplate> getReportByTimeAndOrder(LocalDate fromDate, LocalDate toDate, int groupTime);
+    List<ReportTemplate> getReportByTimeAndRevenue(LocalDate fromDate, LocalDate toDate, int groupTime);
 }

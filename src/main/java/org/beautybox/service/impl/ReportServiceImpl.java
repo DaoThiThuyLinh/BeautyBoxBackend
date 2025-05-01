@@ -56,6 +56,24 @@ public class ReportServiceImpl implements ReportService {
         return reports;
     }
 
+    @Override
+    public List<ReportTemplate> getReportByTimeAndRevenue(LocalDate fromDate, LocalDate toDate, int groupTime) {
+        List<ReportTemplate> reports = new ArrayList<>();
+        while (fromDate.isBefore(this.nextTo(toDate, groupTime))) {
+            LocalDateTime start= fromDate.atStartOfDay();
+            if(start.isAfter(LocalDateTime.now())) {
+                start = LocalDateTime.now();
+            }
+            LocalDateTime end= this.nextTo(fromDate, groupTime).atStartOfDay();
+            if(end.isAfter(LocalDateTime.now()))
+                end= LocalDateTime.now();
+            long value= orderItemRepository.sumRevenueByTime(start, end);
+            reports.add(new ReportTemplate(start.format(DateTimeFormatter.ISO_DATE), value));
+            fromDate = nextTo(fromDate, groupTime);
+        }
+        return reports;
+    }
+
     private LocalDate nextTo(LocalDate from, int groupType){
         if(groupType == (DateType.DAY))
             return from.plusDays(1);

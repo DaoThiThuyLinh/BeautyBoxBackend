@@ -37,4 +37,11 @@ public class ReportController {
                                       @RequestParam(required = false, defaultValue = "1") int groupTime){
         return ApiResponse.success("Thống kê danh sách đặt hàng theo thời gian", reportService.getReportByTimeAndOrder(fromDate, toDate, groupTime));
     }
+
+    @GetMapping("/revenue-by-time")
+    public ApiResponse getRevenueByTime(@RequestParam LocalDate fromDate,
+                                        @RequestParam LocalDate toDate,
+                                        @RequestParam(required = false, defaultValue = "1") int groupTime){
+        return ApiResponse.success("Thống kê doanh thu theo thời gian", reportService.getReportByTimeAndRevenue(fromDate, toDate, groupTime));
+    }
 }
