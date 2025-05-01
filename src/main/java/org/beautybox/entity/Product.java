@@ -19,7 +19,6 @@ import java.util.List;
 @Indexed
 public class Product extends BaseEntity {
     @Id
-        @GeneratedValue(strategy = GenerationType.UUID)
             @Column(length = 36)
     String id;
     @Column(nullable = false)

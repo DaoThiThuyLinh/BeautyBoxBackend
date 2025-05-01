@@ -1,5 +1,6 @@
 package org.beautybox.mapper;
 
+import org.beautybox.common.NanoId;
 import org.beautybox.entity.OrderItem;
 import org.beautybox.entity.OrderProduct;
 import org.beautybox.request.OrderRequest;
@@ -12,10 +13,14 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class OrderMapper {
+
+    NanoId nanoId = new NanoId();
+
     @Mappings( {
             @Mapping(source = "paymentType", target = "paymentType", defaultValue = "1"),
             @Mapping(target = "status", constant = "1"),
-            @Mapping(target = "orderItems", ignore = true)
+            @Mapping(target = "orderItems", ignore = true),
+            @Mapping(target = "id", expression = "java(nanoId.gen())")
         }
     )
     public abstract OrderProduct toOrder(OrderRequest request);
@@ -32,8 +37,12 @@ public abstract class OrderMapper {
     })
     public abstract OrderResponse toResponse(OrderProduct order);
 
+    @Mapping(target = "newPrice", expression = "java(this.getNewPrice(item))")
     public abstract OrderResponse.innerResponse toInnerResponse(OrderItem item);
 
+    protected long getNewPrice(OrderItem item) {
+        return item.getPrice() - item.getPrice() * item.getDiscount() / 100;
+    }
     protected List<OrderResponse.innerResponse> convertOrderItemsResponse(List<OrderItem> orderItems) {
         return orderItems.stream().map(this::toInnerResponse).toList();
     }

@@ -14,7 +14,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderProduct extends BaseEntity {
     @Id
-        @GeneratedValue(strategy = GenerationType.UUID)
             @Column(length = 36)
     String id;
     @Column(updatable = false)

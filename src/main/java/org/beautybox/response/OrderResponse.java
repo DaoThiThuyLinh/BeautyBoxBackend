@@ -43,6 +43,7 @@ public class OrderResponse {
         String productDetailId;
         String productDetailName;
         long price;
+        long newPrice;
         int discount;
         String imageUrl;
     }

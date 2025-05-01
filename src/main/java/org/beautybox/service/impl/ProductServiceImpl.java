@@ -1,5 +1,6 @@
 package org.beautybox.service.impl;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.cloudinary.Cloudinary;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
         for(var item : productRequest.getImages()){
             imageUrls.add(this.getImageUrl(item));
         }
+
         Product product = productMapper.toProduct(productRequest);
         product.setBrand(brand);
         product.setCategory(category);

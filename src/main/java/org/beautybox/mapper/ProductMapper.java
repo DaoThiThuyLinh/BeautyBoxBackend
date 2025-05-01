@@ -1,5 +1,6 @@
 package org.beautybox.mapper;
 
+import org.beautybox.common.NanoId;
 import org.beautybox.entity.Image;
 import org.beautybox.entity.Product;
 import org.beautybox.entity.ProductDetail;
@@ -27,16 +28,18 @@ public abstract class ProductMapper {
     @Autowired
     ProductDetailRepository productDetailRepository;
     @Autowired
-    OrderRepository orderRepository;
-    @Autowired
     ReviewRepository reviewRepository;
     @Autowired
     OrderItemRepository orderItemRepository;
+    NanoId nanoId = new NanoId();
 
 
-    @Mapping(target = "isEnabled", constant = "true")
+    @Mappings({
+            @Mapping(target = "isEnabled", constant = "true"),
+            @Mapping(target = "id", expression = "java(nanoId.gen())")
+        }
+    )
     public abstract Product toProduct(CreateProductRequest request);
-
 
     @Mapping(target = "isEnabled", constant = "true")
     public abstract ProductDetail toProductDetail(CreateProductDetailRequest request);
