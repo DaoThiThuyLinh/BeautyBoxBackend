@@ -35,7 +35,6 @@ public abstract class ProductMapper {
     OrderItemRepository orderItemRepository;
     NanoId nanoId = new NanoId();
 
-
     @Mappings({
             @Mapping(target = "isEnabled", constant = "true"),
             @Mapping(target = "id", expression = "java(nanoId.gen())")
@@ -43,9 +42,11 @@ public abstract class ProductMapper {
     )
     public abstract Product toProduct(CreateProductRequest request);
 
-    @Mapping(target = "isEnabled", constant = "true")
+    @Mappings({
+            @Mapping(target = "isEnabled", constant = "true"),
+            @Mapping(target = "id", expression = "java(nanoId.gen())")
+    })
     public abstract ProductDetail toProductDetail(CreateProductDetailRequest request);
-
 
     @Mappings({
             @Mapping(target = "categoryId", source = "category.id"),

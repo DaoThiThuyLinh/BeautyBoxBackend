@@ -64,7 +64,6 @@ public class ProductController {
         return ApiResponse.success("Cập nhập thành công");
     }
 
-
     @DeleteMapping("/admin-api/product-detail/{productDetailId}")
     public ApiResponse deleteProductDetail(@PathVariable String productDetailId) throws BeautyBoxException {
         productService.deleteProductDetail(productDetailId);

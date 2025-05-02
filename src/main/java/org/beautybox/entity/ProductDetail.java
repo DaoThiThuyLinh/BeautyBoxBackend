@@ -18,7 +18,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDetail extends BaseEntity {
     @Id
-        @GeneratedValue(strategy = GenerationType.UUID)
             @Column(length = 36)
     String id;
     @Column(columnDefinition = "varchar(100)", nullable = false)

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.beautybox.common.NanoId;
 import org.beautybox.config.VNPayConfig;
 import org.beautybox.constraint.OrderStatus;
 import org.beautybox.entity.OrderItem;
@@ -72,7 +73,9 @@ public class OrderServiceImpl implements OrderService {
                 if(productDetail.getStock() - totalSold < orderItems.get(i).getQuantity()) {
                     throw new RuntimeException("Sản phẩm '" + productDetail.getProduct().getName() + " - " + productDetail.getName() +  "' trong kho hiện không còn đủ");
                 }
+                NanoId nanoId = new NanoId();
                 OrderItem orderItem = new OrderItem();
+                orderItem.setId(nanoId.gen());
                 orderItem.setProductId(productDetail.getProduct().getId());
                 orderItem.setProductName(productDetail.getProduct().getName());
                 orderItem.setDescription(productDetail.getProduct().getDescription());

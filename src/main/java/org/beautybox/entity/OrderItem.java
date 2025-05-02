@@ -14,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 @ToString
 public class OrderItem {
     @Id
-            @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     @Column(length = 36, nullable = false, updatable = false)
     String productId;
