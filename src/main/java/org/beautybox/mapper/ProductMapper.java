@@ -4,6 +4,7 @@ import org.beautybox.common.NanoId;
 import org.beautybox.entity.Image;
 import org.beautybox.entity.Product;
 import org.beautybox.entity.ProductDetail;
+import org.beautybox.entity.Review;
 import org.beautybox.repository.*;
 import org.beautybox.request.CreateProductDetailRequest;
 import org.beautybox.request.CreateProductRequest;
@@ -16,6 +17,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +80,16 @@ public abstract class ProductMapper {
             review.setUserName(t.getUser().getName());
             review.setRating(t.getRating());
             review.setComment(t.getComment());
+            List<ReviewResponse.childComment> childComments = new ArrayList<>();
+            for(Review x : reviewRepository.getByReviewId(t.getId())){
+                ReviewResponse.childComment childComment = new ReviewResponse.childComment();
+                childComment.setId(x.getId());
+                childComment.setCreatedDate(x.getCreatedAt());
+                childComment.setUserName(x.getUser().getName());
+                childComment.setComment(x.getComment());
+                childComments.add(childComment);
+            }
+            review.setReplies(childComments);
             return review;
         }).toList();
         Map<Integer, Long> details = new HashMap<>();

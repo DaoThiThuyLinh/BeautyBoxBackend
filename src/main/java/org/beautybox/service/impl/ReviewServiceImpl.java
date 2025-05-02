@@ -9,6 +9,7 @@ import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.exception.ErrorDetail;
 import org.beautybox.repository.OrderItemRepository;
 import org.beautybox.repository.ReviewRepository;
+import org.beautybox.request.ReplyRequest;
 import org.beautybox.request.ReviewRequest;
 import org.beautybox.request.UpdateReviewRequest;
 import org.beautybox.service.ReviewService;
@@ -44,6 +45,20 @@ public class ReviewServiceImpl implements ReviewService {
         review.setUser(user);
 
         reviewRepository.save(review);
+    }
+
+    @Override
+    public void replyReview(ReplyRequest replyRequest, User user) throws BeautyBoxException {
+        Review review = reviewRepository.findById(replyRequest.getReviewId()).orElseThrow(
+                () -> new RuntimeException("Đánh giá không tồn tại")
+        );
+        Review reply = new Review();
+        reply.setOrderItem(null);
+        reply.setComment(replyRequest.getComment());
+        reply.setRating(0);
+        reply.setParentReview(review);
+        reply.setUser(user);
+        reviewRepository.save(reply);
     }
 
     @Override
