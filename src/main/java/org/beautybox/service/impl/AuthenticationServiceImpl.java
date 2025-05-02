@@ -1,6 +1,7 @@
 package org.beautybox.service.impl;
 
 import io.jsonwebtoken.Claims;
+import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -10,16 +11,23 @@ import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.exception.ErrorDetail;
 import org.beautybox.repository.RedisRepository;
 import org.beautybox.repository.UserRepository;
+import org.beautybox.request.ChangePasswordNoAuth;
 import org.beautybox.request.LoginRequest;
 import org.beautybox.response.TokenResponse;
 import org.beautybox.service.AuthenticationService;
 import org.beautybox.service.JwtService;
+import org.beautybox.service.MailService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +38,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     AuthenticationManager authenticationManager;
     JwtService jwtService;
     RedisRepository redisRepository;
+    MailService mailService;
+    SpringTemplateEngine templateEngine;
+    PasswordEncoder passwordEncoder;
 
     @Override
     @SneakyThrows
@@ -69,5 +80,59 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         redisRepository.set(token, jwtService.extractUsername(token));
         redisRepository.setTimeToLive(token, date.getTime() - new Date().getTime());
         System.out.println("Token date: " + date);
+    }
+
+    @Override
+    public void getOtp(String mail) throws BeautyBoxException, MessagingException, UnsupportedEncodingException {
+        User user= userRepository.findUserByEmail(mail);
+        if(user==null){
+            throw new BeautyBoxException(ErrorDetail.ERR_USER_NOT_EXISTED);
+        }
+        Random random= new Random();
+        int code= random.nextInt(100000, 999999);
+
+        Context context= new Context();
+        context.setVariable("code", code);
+        context.setVariable("name", user.getName());
+        String content= templateEngine.process("mail-otp", context);
+        String subject= "Mã xác thực tài khoản";
+        mailService.sendMail(subject,mail, content, true);
+        redisRepository.set(user.getEmail(), code);
+        redisRepository.setTimeToLive(user.getEmail(), 90L * 1000);
+    }
+
+    @Override
+    public void verifyOtp(String mail, String otp) {
+        Object code = redisRepository.get(mail);
+        if(code == null){
+            throw new RuntimeException("OTP không chính xác");
+        }
+        if(otp == null || !otp.equals(code.toString())){
+            throw new RuntimeException("OTP không chính xác");
+        }
+        redisRepository.set(mail, "verified");
+        redisRepository.setTimeToLive(mail, 5 * 60L * 1000);
+    }
+
+    @Override
+    public void changePasswordNoAuth(ChangePasswordNoAuth changePasswordNoAuth) throws BeautyBoxException {
+        Object auth = redisRepository.get(changePasswordNoAuth.getMail());
+        if(auth == null){
+            throw new RuntimeException("Thay đổi mật khẩu chỉ diễn ra trong 5 phút sau khi xác thực OTP, vui lòng xác thực lại OTP");
+        }else{
+            if(!"verified".equals(redisRepository.get(changePasswordNoAuth.getMail()).toString())){
+                throw new RuntimeException("Bạn chưa xác thực OTP");
+            }
+        }
+        User user= userRepository.findUserByEmail(changePasswordNoAuth.getMail());
+        if(user==null){
+            throw new BeautyBoxException(ErrorDetail.ERR_USER_NOT_EXISTED);
+        }
+        if(!changePasswordNoAuth.getPassword().equals(changePasswordNoAuth.getPasswordConfirm())){
+            throw new BeautyBoxException(ErrorDetail.ERR_PASSWORD_CONFIRM_INCORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        redisRepository.set(changePasswordNoAuth.getMail(), null);
     }
 }

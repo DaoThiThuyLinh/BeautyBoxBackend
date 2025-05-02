@@ -3,6 +3,7 @@ package org.beautybox.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -11,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.beautybox.anotation.CurrentUser;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
+import org.beautybox.request.ChangePasswordNoAuth;
 import org.beautybox.request.LoginRequest;
 import org.beautybox.request.UpdateUserRequest;
 import org.beautybox.request.UserRegisterRequest;
@@ -21,6 +23,8 @@ import org.beautybox.service.AuthenticationService;
 import org.beautybox.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequiredArgsConstructor
@@ -106,5 +110,25 @@ public class UserController {
                                   @RequestParam(required = false, defaultValue = "1") String orderBy,
                                   @RequestParam(required = false, defaultValue = "asc") String sortDirection){
         return ApiResponse.success("Danh sách người dùng", userService.getAllUser(value, pageIndex, pageSize, orderBy, sortDirection));
+    }
+
+
+    @PostMapping("/public-api/get-otp")
+    public ApiResponse getOtp(@RequestParam String mail) throws BeautyBoxException, MessagingException, UnsupportedEncodingException {
+        authenticationService.getOtp(mail);
+        return ApiResponse.success("Mã xác nhận đã được gửi qua mail");
+    }
+
+    @PostMapping("/public-api/verify-otp")
+    public ApiResponse verifyOtp(@RequestParam String mail,
+                                 @RequestParam String code) {
+        authenticationService.verifyOtp(mail, code);
+        return ApiResponse.success("Xác thực OTP thành công");
+    }
+
+    @PostMapping("/public-api/change-password")
+    public ApiResponse changePasswordNoAuth(@RequestBody @Valid ChangePasswordNoAuth request) throws BeautyBoxException {
+        authenticationService.changePasswordNoAuth(request);
+        return ApiResponse.success("Thay đổi mật khẩu thành công");
     }
 }

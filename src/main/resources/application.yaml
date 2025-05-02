@@ -5,6 +5,15 @@ spring:
     url: ${database.url}
     username: ${database.username}
     password: ${database.password}
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+  mvc:
+    hidden method:
+      filter:
+        enabled: true
   jpa:
     show-sql: true
     hibernate:
@@ -21,3 +30,14 @@ spring:
               configurer: org.beautybox.config.ElasticsearchAnalysisConfig
           schema_management:
             strategy: create-or-update
+  mail:
+    username: ${mail.user}
+    password: ${mail.password}
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

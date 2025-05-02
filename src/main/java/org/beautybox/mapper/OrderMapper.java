@@ -50,8 +50,8 @@ public abstract class OrderMapper {
     protected String convertStatus(int status){
         return switch (status){
             case 1 -> "Chờ xác nhận";
-            case 2 -> "Đang chuẩn bị giao hàng";
-            case 3 -> "Đang giao hàng tới bạn";
+            case 2 -> "Đang chuẩn bị hàng";
+            case 3 -> "Đang giao hàng";
             case 4 -> "Đã nhận";
             case 5 -> "Đã huỷ đơn";
             case 6 -> "Không nhận hàng";
