@@ -12,10 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.beautybox.anotation.CurrentUser;
 import org.beautybox.entity.User;
 import org.beautybox.exception.BeautyBoxException;
-import org.beautybox.request.ChangePasswordNoAuth;
-import org.beautybox.request.LoginRequest;
-import org.beautybox.request.UpdateUserRequest;
-import org.beautybox.request.UserRegisterRequest;
+import org.beautybox.request.*;
 import org.beautybox.response.ApiResponse;
 import org.beautybox.response.TokenResponse;
 import org.beautybox.response.UserResponse;
@@ -113,12 +110,14 @@ public class UserController {
     }
 
 
+    @Operation(summary = "OTP tồn tại trong 90s")
     @PostMapping("/public-api/get-otp")
     public ApiResponse getOtp(@RequestParam String mail) throws BeautyBoxException, MessagingException, UnsupportedEncodingException {
         authenticationService.getOtp(mail);
         return ApiResponse.success("Mã xác nhận đã được gửi qua mail");
     }
 
+    @Operation(summary = "Sau khi xác thực, thao tác đổi mật khẩu chỉ diễn ra trong 5p")
     @PostMapping("/public-api/verify-otp")
     public ApiResponse verifyOtp(@RequestParam String mail,
                                  @RequestParam String code) {
@@ -126,9 +125,17 @@ public class UserController {
         return ApiResponse.success("Xác thực OTP thành công");
     }
 
+    @Operation(summary = "Thay đổi mật khẩu trong thao tác quên mật khẩu")
     @PostMapping("/public-api/change-password")
     public ApiResponse changePasswordNoAuth(@RequestBody @Valid ChangePasswordNoAuth request) throws BeautyBoxException {
         authenticationService.changePasswordNoAuth(request);
         return ApiResponse.success("Thay đổi mật khẩu thành công");
+    }
+
+    @Operation(summary = "Thay đổi mật khẩu bình thường")
+    @PostMapping("/change-password")
+    public ApiResponse changePassword(@RequestBody @Valid ChangePassword request, @CurrentUser User user) throws BeautyBoxException {
+        authenticationService.changePassword(request, user);
+        return ApiResponse.success("Đổi mật khẩu thành công");
     }
 }

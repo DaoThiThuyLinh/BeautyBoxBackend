@@ -11,6 +11,7 @@ import org.beautybox.exception.BeautyBoxException;
 import org.beautybox.exception.ErrorDetail;
 import org.beautybox.repository.RedisRepository;
 import org.beautybox.repository.UserRepository;
+import org.beautybox.request.ChangePassword;
 import org.beautybox.request.ChangePasswordNoAuth;
 import org.beautybox.request.LoginRequest;
 import org.beautybox.response.TokenResponse;
@@ -131,8 +132,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(!changePasswordNoAuth.getPassword().equals(changePasswordNoAuth.getPasswordConfirm())){
             throw new BeautyBoxException(ErrorDetail.ERR_PASSWORD_CONFIRM_INCORRECT);
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(changePasswordNoAuth.getPassword()));
         userRepository.save(user);
         redisRepository.set(changePasswordNoAuth.getMail(), null);
+    }
+
+    @Override
+    public void changePassword(ChangePassword changePassword, User user) throws BeautyBoxException {
+        if(!changePassword.getPassword().equals(changePassword.getPasswordConfirm())){
+            throw new BeautyBoxException(ErrorDetail.ERR_PASSWORD_CONFIRM_INCORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(changePassword.getPassword()));
+        userRepository.save(user);
     }
 }
