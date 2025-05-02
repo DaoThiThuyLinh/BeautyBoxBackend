@@ -135,6 +135,7 @@ public class ProductController {
             case "2" -> "productDetails.price";
             case "3" -> "name_sort";
             case "4" -> "totalSold";
+            case "5" -> "totalReview";
             default -> throw new IllegalArgumentException("Unknown orderBy: " + orderBy);
         };
     }

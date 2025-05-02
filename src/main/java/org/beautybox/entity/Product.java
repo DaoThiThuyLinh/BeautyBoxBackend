@@ -3,6 +3,7 @@ package org.beautybox.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.beautybox.binder.TotalReviewBinder;
 import org.beautybox.binder.TotalSoldBinder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -56,6 +57,14 @@ public class Product extends BaseEntity {
     public String getTotalSold() {
         return this.id;
     }
+
+    @Transient
+    @PropertyBinding(binder = @PropertyBinderRef(type = TotalReviewBinder.class))
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO, extraction = @ContainerExtraction(extract = ContainerExtract.NO))
+    public String getTotalReview() {
+        return this.id;
+    }
+
 //
 //    @GenericField(name = "sizeProductDetail", sortable = Sortable.YES)
 //    @AssociationInverseSide(inversePath = @ObjectPath({
