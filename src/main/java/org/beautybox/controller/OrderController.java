@@ -14,6 +14,8 @@ import org.beautybox.response.ApiResponse;
 import org.beautybox.service.OrderService;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -44,8 +46,12 @@ public class OrderController {
                                 @RequestParam(required = false, defaultValue = "") String userId,
                                 @RequestParam(required = false, defaultValue = "1") int pageIndex,
                                 @RequestParam(required = false, defaultValue = "40") int pageSize,
-                                @RequestParam(required = false, defaultValue = "0") int status) {
-        return ApiResponse.success("Thành công", orderService.get(s, userId, pageIndex, pageSize, status));
+                                @RequestParam(required = false, defaultValue = "0") int status,
+                                @RequestParam(required = false) LocalDate fromDate,
+                                @RequestParam(required = false) LocalDate toDate) {
+        if(fromDate == null) fromDate = LocalDate.of(1900, 1, 1);
+        if(toDate == null) toDate = LocalDate.of(2550, 1, 1);
+        return ApiResponse.success("Thành công", orderService.get(s, userId, pageIndex, pageSize, status, fromDate, toDate));
     }
 
     @DeleteMapping("/order")

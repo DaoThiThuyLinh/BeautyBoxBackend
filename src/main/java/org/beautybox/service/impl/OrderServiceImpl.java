@@ -35,6 +35,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -286,9 +287,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageResponse<OrderResponse> get(String s, String userId, int pageIndex, int pageSize, int status) {
+    public PageResponse<OrderResponse> get(String s, String userId, int pageIndex, int pageSize, int status, LocalDate fromDate, LocalDate toDate) {
         Pageable pageable = PageRequest.of(pageIndex - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<OrderProduct> ordersPage = orderRepository.getOrders(s, userId, status, pageable);
+        Page<OrderProduct> ordersPage = orderRepository.getOrders(s, userId, status, pageable, fromDate.atStartOfDay(), toDate.atStartOfDay());
         List<OrderResponse> contents = ordersPage.getContent().stream().map(orderMapper::toResponse).toList();
         return PageResponse.<OrderResponse>builder()
                 .pageIndex(pageIndex)
