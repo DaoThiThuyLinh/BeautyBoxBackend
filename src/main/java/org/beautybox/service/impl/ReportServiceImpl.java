@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
             if(end.isAfter(LocalDateTime.now()))
                 end= LocalDateTime.now();
             int value= orderRepository.countByTime(start, end);
-            reports.add(new ReportTemplate(start.format(DateTimeFormatter.ISO_DATE), value));
+            reports.add(new ReportTemplate(fromDate.toString(), value));
             fromDate = nextTo(fromDate, groupTime);
         }
         return reports;
@@ -68,7 +67,7 @@ public class ReportServiceImpl implements ReportService {
             if(end.isAfter(LocalDateTime.now()))
                 end= LocalDateTime.now();
             long value= orderItemRepository.sumRevenueByTime(start, end);
-            reports.add(new ReportTemplate(start.format(DateTimeFormatter.ISO_DATE), value));
+            reports.add(new ReportTemplate(fromDate.toString(), value));
             fromDate = nextTo(fromDate, groupTime);
         }
         return reports;

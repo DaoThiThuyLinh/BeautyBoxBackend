@@ -47,7 +47,7 @@ public class GlobalException {
         String s2 = field.substring(index);
 
         field = s1.substring(0, 1).toUpperCase() + s1.substring(1) + " " + s2.substring(0, 1).toLowerCase() + s2.substring(1);
-        return ResponseEntity.badRequest().body(ApiResponse.error(field + " is not in correct format"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(field + " không đúng định dạng"));
     }
     /**
      * Xử lí lỗi, chuyển đổi kiểu dữ liệu thời gian
@@ -93,7 +93,7 @@ public class GlobalException {
         if(Objects.requireNonNull(error.getDefaultMessage()).startsWith("Failed to convert property value of type")){
             FieldError fieldError = (FieldError) error;
             String field = fieldError.getField();
-            message.append(field.substring(0, 1).toUpperCase()).append(field.substring(1)).append(" is not in correct format");
+            message.append(field.substring(0, 1).toUpperCase()).append(field.substring(1)).append(" không đúng định dạng");
         }else{
             message.append(error.getDefaultMessage());
         }
