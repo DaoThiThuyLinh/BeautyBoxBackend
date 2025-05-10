@@ -44,4 +44,12 @@ public class ReportController {
                                         @RequestParam(required = false, defaultValue = "1") int groupTime){
         return ApiResponse.success("Thống kê doanh thu theo thời gian", reportService.getReportByTimeAndRevenue(fromDate, toDate, groupTime));
     }
+
+    @GetMapping("/profit-by-time")
+    public ApiResponse getProfit(@RequestParam LocalDate fromDate,
+                         @RequestParam LocalDate toDate,
+                         @RequestParam(required = false, defaultValue = "1") int groupTime){
+
+        return ApiResponse.success("Thống kê lợi nhuận", reportService.getReportByTimeAndProfit(fromDate, toDate, groupTime));
+    }
 }

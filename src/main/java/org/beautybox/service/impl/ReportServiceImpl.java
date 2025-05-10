@@ -2,9 +2,12 @@ package org.beautybox.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.beautybox.constraint.DateType;
+import org.beautybox.entity.OrderItem;
+import org.beautybox.entity.OrderProduct;
 import org.beautybox.repository.*;
 import org.beautybox.response.ReportTemplate;
 import org.beautybox.service.ReportService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -24,6 +27,10 @@ public class ReportServiceImpl implements ReportService {
      final OrderItemRepository orderItemRepository;
      final CategoryRepository categoryRepository;
      final BrandRepository brandRepository;
+     final WarehouseRepository warehouseRepository;
+     final int ORDER = 1;
+     final int REVENUE = 2;
+     final int PROFIT = 3;
 
     @Override
     public Map<String, Object> getSummary() {
@@ -39,35 +46,51 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<ReportTemplate> getReportByTimeAndOrder(LocalDate fromDate, LocalDate toDate, int groupTime) {
-        List<ReportTemplate> reports = new ArrayList<>();
-        while (fromDate.isBefore(this.nextTo(toDate, groupTime))) {
-            LocalDateTime start= fromDate.atStartOfDay();
-            if(start.isAfter(LocalDateTime.now())) {
-                start = LocalDateTime.now();
-            }
-            LocalDateTime end= this.nextTo(fromDate, groupTime).atStartOfDay();
-            if(end.isAfter(LocalDateTime.now()))
-                end= LocalDateTime.now();
-            int value= orderRepository.countByTime(start, end);
-            reports.add(new ReportTemplate(fromDate.toString(), value));
-            fromDate = nextTo(fromDate, groupTime);
-        }
-        return reports;
+        return this.getData(fromDate, toDate, groupTime, ORDER);
     }
 
     @Override
     public List<ReportTemplate> getReportByTimeAndRevenue(LocalDate fromDate, LocalDate toDate, int groupTime) {
+        return this.getData(fromDate, toDate, groupTime, REVENUE);
+    }
+
+    @Override
+    public List<ReportTemplate> getReportByTimeAndProfit(LocalDate fromDate, LocalDate toDate, int groupTime) {
+        return this.getData(fromDate, toDate, groupTime, PROFIT);
+    }
+
+    private List<ReportTemplate> getData(LocalDate fromDate, LocalDate toDate, int groupTime, int type) {
         List<ReportTemplate> reports = new ArrayList<>();
-        while (fromDate.isBefore(this.nextTo(toDate, groupTime))) {
-            LocalDateTime start= fromDate.atStartOfDay();
-            if(start.isAfter(LocalDateTime.now())) {
-                start = LocalDateTime.now();
+        reports.add(new ReportTemplate(fromDate.toString(), 0));
+        boolean isReturn = false;
+        while (fromDate.isBefore(toDate)) {
+            LocalDateTime start = fromDate.atStartOfDay();
+            LocalDateTime end = this.nextTo(fromDate, groupTime).atStartOfDay();
+            if(end.isAfter(LocalDateTime.now())){
+                end = LocalDateTime.now();
+                isReturn = true;
             }
-            LocalDateTime end= this.nextTo(fromDate, groupTime).atStartOfDay();
-            if(end.isAfter(LocalDateTime.now()))
-                end= LocalDateTime.now();
-            long value= orderItemRepository.sumRevenueByTime(start, end);
-            reports.add(new ReportTemplate(fromDate.toString(), value));
+            long value = 0;
+            if(type == ORDER){
+                value = orderItemRepository.sumRevenueByTime(start, end);
+            }
+            if(type == REVENUE){
+                value = orderItemRepository.sumRevenueByTime(start, end);
+            }
+            if(type == PROFIT){
+                double avgPurchasePrice = warehouseRepository.getAvgPriceByProductDetailId("");
+                double avgSalesPrice = orderItemRepository.getAvgByProductDetailId("");
+                List<OrderItem> orderItems = orderItemRepository.getByTime("", start, end, Pageable.unpaged()).getContent();
+                long profit = 0;
+                for(OrderItem orderItem : orderItems) {
+                    profit = (long) (profit  + (avgPurchasePrice -  avgSalesPrice) * orderItem.getQuantity());
+                }
+                value = profit;
+            }
+            reports.add(new ReportTemplate(end.toLocalDate().toString(), value));
+            if(isReturn){
+                break;
+            }
             fromDate = nextTo(fromDate, groupTime);
         }
         return reports;

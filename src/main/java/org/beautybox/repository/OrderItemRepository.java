@@ -1,6 +1,9 @@
 package org.beautybox.repository;
 
 import org.beautybox.entity.OrderItem;
+import org.beautybox.entity.OrderProduct;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -34,4 +37,16 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
             "AND oi.order.createdAt >= :startTime " +
             "AND oi.order.createdAt <= :endTime ")
     long sumRevenueByTime(LocalDateTime startTime, LocalDateTime endTime);
+
+    @Query("SELECT avg(oi.price - oi.price * oi.discount / 100) " +
+            "FROM OrderItem oi " +
+            "WHERE oi.productDetailId = :productDetailId " +
+            "OR :productDetailId = ''")
+    double getAvgByProductDetailId(String productDetailId);
+
+
+    @Query("FROM OrderItem oi " +
+            "WHERE oi.order.createdAt <= :end AND oi.order.createdAt >= :start " +
+            "AND (oi.productDetailId = :productDetailId OR :productDetailId = '')" )
+    Page<OrderItem> getByTime(String productDetailId, LocalDateTime start, LocalDateTime end, Pageable pageable);
 }

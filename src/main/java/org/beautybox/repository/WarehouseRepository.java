@@ -7,11 +7,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface WarehouseRepository extends JpaRepository<Warehouse, String> {
     @Query("FROM Warehouse w " +
             "WHERE w.productDetail.id = :productDetailId ")
-    Page<Warehouse> getAllByProductId(String productDetailId, Pageable pageable);
+    Page<Warehouse> getAllByProductDetailId(String productDetailId, Pageable pageable);
+
+    @Query("FROM Warehouse w " +
+            "WHERE w.productDetail.product.id = :productId " +
+            "OR :productId = ''")
+    Page<Warehouse> getAllByProductId(String productId, Pageable pageable);
+
+    @Query("SELECT AVG(oi.price - oi.price * oi.discount / 100) " +
+            "FROM OrderItem oi " +
+            "WHERE oi.productDetailId = :productDetailId " +
+            "OR :productDetailId = '' ")
+    double getAvgPriceByProductDetailId(String productDetailId);
+
 }

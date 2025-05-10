@@ -43,7 +43,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     private void updateStock(ProductDetail productDetail){
-        List<Warehouse> warehousesOfProductDetail = warehouseRepository.getAllByProductId(productDetail.getId(), Pageable.unpaged()).getContent();
+        List<Warehouse> warehousesOfProductDetail = warehouseRepository.getAllByProductDetailId(productDetail.getId(), Pageable.unpaged()).getContent();
         int stock = 0;
         for(Warehouse item : warehousesOfProductDetail){
             stock = stock + item.getEntryQuantity();
@@ -55,7 +55,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public PageResponse<WarehouseResponse> getAllByProductDetail(String productDetailId, int pageIndex, int pageSize) throws BeautyBoxException {
         Pageable pageable = PageRequest.of(pageIndex - 1, pageSize, Sort.by(Sort.Direction.DESC, "entryDate"));
-        Page<Warehouse> warehousesPage = warehouseRepository.getAllByProductId(productDetailId, pageable);
+        Page<Warehouse> warehousesPage = warehouseRepository.getAllByProductDetailId(productDetailId, pageable);
         List<WarehouseResponse> contents = warehousesPage.stream().map(warehouseMapper::toResponse).toList();
         return PageResponse.<WarehouseResponse>
                 builder()
