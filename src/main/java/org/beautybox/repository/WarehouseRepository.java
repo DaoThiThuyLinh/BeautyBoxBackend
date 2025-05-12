@@ -18,9 +18,9 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, String> {
             "OR :productId = ''")
     Page<Warehouse> getAllByProductId(String productId, Pageable pageable);
 
-    @Query("SELECT AVG(oi.price - oi.price * oi.discount / 100) " +
-            "FROM OrderItem oi " +
-            "WHERE oi.productDetailId = :productDetailId " +
+    @Query("SELECT AVG(wh.entryPrice) " +
+            "FROM Warehouse wh " +
+            "WHERE wh.productDetail.id = :productDetailId " +
             "OR :productDetailId = '' ")
     double getAvgPriceByProductDetailId(String productDetailId);
 

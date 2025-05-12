@@ -63,6 +63,12 @@ public class ReportServiceImpl implements ReportService {
         List<ReportTemplate> reports = new ArrayList<>();
         reports.add(new ReportTemplate(fromDate.toString(), 0));
         boolean isReturn = false;
+        if(fromDate.isAfter(LocalDate.now())){
+            throw new RuntimeException("Thời gian không hợp lệ");
+        }
+        if(toDate.isAfter(LocalDate.now())) {
+            toDate = LocalDate.now();
+        }
         while (fromDate.isBefore(toDate)) {
             LocalDateTime start = fromDate.atStartOfDay();
             LocalDateTime end = this.nextTo(fromDate, groupTime).atStartOfDay();
@@ -72,7 +78,7 @@ public class ReportServiceImpl implements ReportService {
             }
             long value = 0;
             if(type == ORDER){
-                value = orderItemRepository.sumRevenueByTime(start, end);
+                value = orderRepository.countByTime(start, end);
             }
             if(type == REVENUE){
                 value = orderItemRepository.sumRevenueByTime(start, end);
@@ -83,7 +89,7 @@ public class ReportServiceImpl implements ReportService {
                 List<OrderItem> orderItems = orderItemRepository.getByTime("", start, end, Pageable.unpaged()).getContent();
                 long profit = 0;
                 for(OrderItem orderItem : orderItems) {
-                    profit = (long) (profit  + (avgPurchasePrice -  avgSalesPrice) * orderItem.getQuantity());
+                    profit = (long) (profit  + (avgSalesPrice -  avgPurchasePrice) * orderItem.getQuantity());
                 }
                 value = profit;
             }
