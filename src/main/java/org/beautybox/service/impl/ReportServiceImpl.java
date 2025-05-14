@@ -61,20 +61,16 @@ public class ReportServiceImpl implements ReportService {
 
     private List<ReportTemplate> getData(LocalDate fromDate, LocalDate toDate, int groupTime, int type) {
         List<ReportTemplate> reports = new ArrayList<>();
-        reports.add(new ReportTemplate(fromDate.toString(), 0));
-        boolean isReturn = false;
-        if(fromDate.isAfter(LocalDate.now())){
-            throw new RuntimeException("Thời gian không hợp lệ");
-        }
-        if(toDate.isAfter(LocalDate.now())) {
-            toDate = LocalDate.now();
+        if(groupTime != DateType.DAY) {
+            reports.add(new ReportTemplate(fromDate.toString(), 0));
+        }else{
+            toDate = toDate.plusDays(1);
         }
         while (fromDate.isBefore(toDate)) {
             LocalDateTime start = fromDate.atStartOfDay();
             LocalDateTime end = this.nextTo(fromDate, groupTime).atStartOfDay();
-            if(end.isAfter(LocalDateTime.now())){
-                end = LocalDateTime.now();
-                isReturn = true;
+            if(end.isAfter(toDate.atStartOfDay())){
+                end = toDate.atStartOfDay();
             }
             long value = 0;
             if(type == ORDER){
@@ -93,9 +89,10 @@ public class ReportServiceImpl implements ReportService {
                 }
                 value = profit;
             }
-            reports.add(new ReportTemplate(end.toLocalDate().toString(), value));
-            if(isReturn){
-                break;
+            if(groupTime == DateType.DAY) {
+                reports.add(new ReportTemplate(start.toLocalDate().toString(), value));
+            }else{
+                reports.add(new ReportTemplate(end.toLocalDate().toString(), value));
             }
             fromDate = nextTo(fromDate, groupTime);
         }
