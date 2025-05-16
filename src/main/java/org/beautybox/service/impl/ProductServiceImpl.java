@@ -199,7 +199,7 @@ public class ProductServiceImpl implements ProductService {
                     var sort = t.composite();
                     sort.add(direction.equals("asc") ? t.field(orderBy).asc() : t.field(orderBy).desc());
                     return sort;
-                }).fetch(pageIndex-1, pageSize);
+                }).fetch((pageIndex - 1) * pageSize, pageSize);
 
         List<Product> products = searchResult.hits();
         return PageResponse.<ProductResponse>builder()
